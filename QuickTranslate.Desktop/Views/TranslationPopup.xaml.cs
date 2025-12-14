@@ -21,8 +21,9 @@ public partial class TranslationPopup : Window
         TranslatedText = text;
         TranslationText.Text = text;
         LoadingPanel.Visibility = Visibility.Collapsed;
-        ErrorText.Visibility = Visibility.Collapsed;
+        ErrorBorder.Visibility = Visibility.Collapsed;
         TranslationScrollViewer.Visibility = Visibility.Visible;
+        CharacterCountText.Text = $"{text.Length} characters";
     }
 
     public void SetError(string error)
@@ -30,14 +31,16 @@ public partial class TranslationPopup : Window
         ErrorText.Text = error;
         LoadingPanel.Visibility = Visibility.Collapsed;
         TranslationScrollViewer.Visibility = Visibility.Collapsed;
-        ErrorText.Visibility = Visibility.Visible;
+        ErrorBorder.Visibility = Visibility.Visible;
+        CharacterCountText.Text = string.Empty;
     }
 
     public void SetLoading()
     {
         LoadingPanel.Visibility = Visibility.Visible;
         TranslationScrollViewer.Visibility = Visibility.Collapsed;
-        ErrorText.Visibility = Visibility.Collapsed;
+        ErrorBorder.Visibility = Visibility.Collapsed;
+        CharacterCountText.Text = string.Empty;
     }
 
     public void ShowAtCursor()

@@ -1,6 +1,7 @@
 <Window x:Class="QuickTranslate.Desktop.Views.TranslationPopup"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="Translation"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -8,21 +9,21 @@
         Topmost="True"
         ShowInTaskbar="False"
         SizeToContent="WidthAndHeight"
-        MaxWidth="500"
-        MaxHeight="400"
+        MaxWidth="550"
+        MaxHeight="450"
         Deactivated="Window_Deactivated">
     
-    <Border Background="#2d2d2d" 
-            BorderBrush="#0078d4" 
+    <Border Background="{ui:ThemeResource ApplicationBackgroundBrush}" 
+            BorderBrush="{ui:ThemeResource ControlStrokeColorDefaultBrush}" 
             BorderThickness="1" 
             CornerRadius="8"
-            Padding="12"
+            Padding="16"
             Margin="4">
         <Border.Effect>
-            <DropShadowEffect Color="Black" BlurRadius="15" Opacity="0.5" ShadowDepth="2"/>
+            <DropShadowEffect Color="Black" BlurRadius="20" Opacity="0.4" ShadowDepth="0"/>
         </Border.Effect>
         
-        <Grid>
+        <Grid MinWidth="320">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -30,20 +31,25 @@
             </Grid.RowDefinitions>
             
             <!-- Header -->
-            <Grid Grid.Row="0" Margin="0,0,0,8">
-                <TextBlock Text="Translation" 
-                           Foreground="#0078d4" 
-                           FontWeight="SemiBold" 
-                           FontSize="12"/>
-                <Button Content="✕" 
-                        HorizontalAlignment="Right"
-                        Background="Transparent"
-                        Foreground="#888"
-                        BorderThickness="0"
-                        Padding="4,0"
-                        Cursor="Hand"
-                        Click="Close_Click"
-                        FontSize="14"/>
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="LocalLanguage24" 
+                                   Foreground="{ui:ThemeResource AccentTextFillColorPrimaryBrush}"
+                                   Margin="0,0,8,0"
+                                   VerticalAlignment="Center"/>
+                    <TextBlock Text="Quick Translation" 
+                               Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}" 
+                               FontWeight="SemiBold" 
+                               FontSize="14"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+                <ui:Button HorizontalAlignment="Right"
+                           Appearance="Transparent"
+                           Click="Close_Click"
+                           Padding="6"
+                           ToolTip="Close">
+                    <ui:SymbolIcon Symbol="Dismiss16"/>
+                </ui:Button>
             </Grid>
             
             <!-- Translation Text -->
@@ -54,10 +60,11 @@
                           MaxHeight="300"
                           Visibility="Collapsed">
                 <TextBlock x:Name="TranslationText"
-                           Foreground="White"
+                           Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
                            TextWrapping="Wrap"
                            FontSize="14"
-                           LineHeight="20"/>
+                           LineHeight="22"
+                           Padding="4"/>
             </ScrollViewer>
             
             <!-- Loading indicator -->
@@ -66,32 +73,61 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Visibility="Visible">
+                <ui:ProgressRing IsIndeterminate="True" 
+                                 Width="32" 
+                                 Height="32"
+                                 Margin="0,0,0,8"/>
                 <TextBlock Text="Translating..." 
-                           Foreground="#888" 
-                           FontSize="12"/>
+                           Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
+                           FontSize="13"/>
             </StackPanel>
             
             <!-- Error message -->
-            <TextBlock Grid.Row="1"
-                       x:Name="ErrorText"
-                       Foreground="#ff6b6b"
-                       TextWrapping="Wrap"
-                       Visibility="Collapsed"/>
+            <Border Grid.Row="1"
+                    x:Name="ErrorBorder"
+                    Background="{ui:ThemeResource SystemFillColorCriticalBackgroundBrush}"
+                    CornerRadius="4"
+                    Padding="12"
+                    Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="ErrorCircle24" 
+                                   Foreground="{ui:ThemeResource SystemFillColorCriticalBrush}"
+                                   Margin="0,0,8,0"
+                                   VerticalAlignment="Center"/>
+                    <TextBlock x:Name="ErrorText"
+                               Foreground="{ui:ThemeResource SystemFillColorCriticalBrush}"
+                               TextWrapping="Wrap"
+                               FontSize="13"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
             
-            <!-- Footer with copy button -->
-            <StackPanel Grid.Row="2" 
-                        Orientation="Horizontal" 
-                        HorizontalAlignment="Right"
-                        Margin="0,8,0,0">
-                <Button Content="📋 Copy" 
-                        Click="Copy_Click"
-                        Background="#3a3a3a"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Padding="8,4"
-                        Cursor="Hand"
-                        FontSize="11"/>
-            </StackPanel>
+            <!-- Footer with copy button and character count -->
+            <Grid Grid.Row="2" Margin="0,12,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Character count -->
+                <TextBlock Grid.Column="0"
+                           x:Name="CharacterCountText"
+                           Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
+                           FontSize="11"
+                           VerticalAlignment="Center"/>
+                
+                <!-- Copy button -->
+                <ui:Button Grid.Column="1"
+                           Appearance="Secondary"
+                           Click="Copy_Click"
+                           Padding="12,6"
+                           FontSize="12">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Copy24" Margin="0,0,6,0"/>
+                        <TextBlock Text="Copy"/>
+                    </StackPanel>
+                </ui:Button>
+            </Grid>
         </Grid>
     </Border>
     
