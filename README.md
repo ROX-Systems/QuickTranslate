@@ -107,11 +107,6 @@ Logs are stored in:
 2. Press `Ctrl+Shift+T`
 3. QuickTranslate window appears with translation
 
-### Translate Browser Page
-1. Open a page in Chrome, Edge, or Firefox
-2. Press `Ctrl+Shift+P`
-3. QuickTranslate extracts page content and translates it
-
 ### Manual Translation
 1. Open QuickTranslate (`Ctrl+Shift+O`)
 2. Paste or type text in "Source Text" field
@@ -127,14 +122,12 @@ QuickTranslate/
 │   └── Services/                 # Service implementations
 │       ├── OpenAiProviderClient  # HTTP client for OpenAI API
 │       ├── TranslationService    # Translation orchestration
-│       ├── SettingsStore         # Settings persistence with DPAPI
-│       └── HtmlExtractor         # HTML parsing
+│       └── SettingsStore         # Settings persistence with DPAPI
 │
 └── QuickTranslate.Desktop/       # WPF application
     ├── Services/                 # Desktop-specific services
     │   ├── HotkeyService         # Global hotkeys (Win32 API)
-    │   ├── ClipboardService      # Clipboard operations
-    │   └── BrowserService        # Browser URL extraction
+    │   └── ClipboardService      # Clipboard operations
     ├── ViewModels/               # MVVM ViewModels
     ├── Views/                    # WPF Windows
     └── Converters/               # Value converters

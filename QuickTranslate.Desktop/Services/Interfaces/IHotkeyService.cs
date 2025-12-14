@@ -10,7 +10,6 @@ public interface IHotkeyService : IDisposable
 public enum HotkeyAction
 {
     TranslateSelection,
-    TranslatePage,
     ShowHide
 }
 

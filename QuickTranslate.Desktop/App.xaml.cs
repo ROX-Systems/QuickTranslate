@@ -65,11 +65,9 @@ public partial class App : Application
         });
 
         services.AddSingleton<ITranslationService, TranslationService>();
-        services.AddSingleton<IHtmlExtractor, HtmlExtractor>();
 
         services.AddSingleton<HotkeyService>();
         services.AddSingleton<IClipboardService, ClipboardService>();
-        services.AddSingleton<IBrowserService, BrowserService>();
 
         services.AddSingleton<MainViewModel>();
         services.AddTransient<SettingsViewModel>();

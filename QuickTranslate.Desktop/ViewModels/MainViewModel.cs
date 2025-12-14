@@ -15,8 +15,6 @@ public partial class MainViewModel : ObservableObject
     private readonly ISettingsStore _settingsStore;
     private readonly IProviderClient _providerClient;
     private readonly IClipboardService _clipboardService;
-    private readonly IBrowserService _browserService;
-    private readonly IHtmlExtractor _htmlExtractor;
     private readonly ILogger _logger;
 
     private CancellationTokenSource? _cancellationTokenSource;
@@ -51,16 +49,12 @@ public partial class MainViewModel : ObservableObject
         ITranslationService translationService,
         ISettingsStore settingsStore,
         IProviderClient providerClient,
-        IClipboardService clipboardService,
-        IBrowserService browserService,
-        IHtmlExtractor htmlExtractor)
+        IClipboardService clipboardService)
     {
         _translationService = translationService;
         _settingsStore = settingsStore;
         _providerClient = providerClient;
         _clipboardService = clipboardService;
-        _browserService = browserService;
-        _htmlExtractor = htmlExtractor;
         _logger = Log.ForContext<MainViewModel>();
 
         LoadSettings();
@@ -114,83 +108,6 @@ public partial class MainViewModel : ObservableObject
 
         SourceText = selectedText;
         await TranslateCurrentTextAsync();
-    }
-
-    public async Task TranslatePageFromWindowAsync(IntPtr browserWindow)
-    {
-        _logger.Information("TranslatePage triggered for window: {Hwnd}", browserWindow);
-
-        if (!_browserService.IsBrowserActive(browserWindow))
-        {
-            ShowError("No browser detected. Please open a browser and navigate to a page.");
-            return;
-        }
-
-        var url = await _browserService.GetCurrentUrlAsync(browserWindow);
-        await TranslatePageContentAsync(url);
-    }
-
-    [RelayCommand]
-    private async Task TranslatePageAsync()
-    {
-        _logger.Information("TranslatePage triggered");
-
-        if (!_browserService.IsBrowserActive())
-        {
-            ShowError("No browser detected. Please open a browser and navigate to a page.");
-            return;
-        }
-
-        var url = await _browserService.GetCurrentUrlAsync();
-        await TranslatePageContentAsync(url);
-    }
-
-    private async Task TranslatePageContentAsync(string? url)
-    {
-        
-        if (string.IsNullOrEmpty(url))
-        {
-            ShowError("Could not get URL from browser. Try using 'Translate Selection' instead.");
-            return;
-        }
-
-        StatusMessage = "Fetching page content...";
-        IsLoading = true;
-        HasError = false;
-
-        try
-        {
-            _cancellationTokenSource = new CancellationTokenSource();
-            var pageText = await _htmlExtractor.ExtractTextFromUrlAsync(url, _cancellationTokenSource.Token);
-
-            if (string.IsNullOrWhiteSpace(pageText))
-            {
-                ShowError("Could not extract text from page.");
-                return;
-            }
-
-            const int maxLength = 15000;
-            if (pageText.Length > maxLength)
-            {
-                pageText = pageText.Substring(0, maxLength) + "\n\n[Text truncated...]";
-            }
-
-            SourceText = pageText;
-            await TranslateCurrentTextAsync();
-        }
-        catch (TaskCanceledException)
-        {
-            StatusMessage = "Cancelled";
-        }
-        catch (Exception ex)
-        {
-            _logger.Error(ex, "Error fetching page");
-            ShowError($"Error fetching page: {ex.Message}");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
     }
 
     [RelayCommand]

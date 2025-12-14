@@ -64,10 +64,6 @@ public partial class MainWindow : Window
             HotkeyService.Modifiers.Control | HotkeyService.Modifiers.Shift, 
             HotkeyService.Keys.T);
         
-        _hotkeyService.RegisterHotkey(HotkeyAction.TranslatePage, 
-            HotkeyService.Modifiers.Control | HotkeyService.Modifiers.Shift, 
-            HotkeyService.Keys.P);
-        
         _hotkeyService.RegisterHotkey(HotkeyAction.ShowHide, 
             HotkeyService.Modifiers.Control | HotkeyService.Modifiers.Shift, 
             HotkeyService.Keys.O);
@@ -97,16 +93,6 @@ public partial class MainWindow : Window
                     {
                         _viewModel.ShowNoTextSelectedError();
                     }
-                });
-                break;
-                
-            case HotkeyAction.TranslatePage:
-                // Capture browser window before showing our window
-                var browserWindow = e.ForegroundWindow;
-                await Dispatcher.InvokeAsync(async () =>
-                {
-                    ShowAndActivate();
-                    await _viewModel.TranslatePageFromWindowAsync(browserWindow);
                 });
                 break;
                 

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuickTranslate.Desktop")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c3c5dde353d2043ec4c77d0de9783389a5aef30e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b702779ba60338c513589b60c55daae522f63209")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuickTranslate.Desktop")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuickTranslate.Desktop")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
