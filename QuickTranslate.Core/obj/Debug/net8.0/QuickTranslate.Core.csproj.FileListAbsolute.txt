@@ -10,3 +10,4 @@ D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Core\
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Core\obj\Debug\net8.0\refint\QuickTranslate.Core.dll
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Core\obj\Debug\net8.0\QuickTranslate.Core.pdb
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Core\obj\Debug\net8.0\ref\QuickTranslate.Core.dll
+D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Core\obj\Debug\net8.0\QuickTranslate.Core.sourcelink.json
