@@ -14,15 +14,17 @@ public partial class MainWindow : Window
 {
     private readonly MainViewModel _viewModel;
     private readonly HotkeyService _hotkeyService;
+    private readonly IClipboardService _clipboardService;
     private readonly ILogger _logger;
     private bool _isExiting;
 
-    public MainWindow(MainViewModel viewModel, HotkeyService hotkeyService)
+    public MainWindow(MainViewModel viewModel, HotkeyService hotkeyService, IClipboardService clipboardService)
     {
         InitializeComponent();
         
         _viewModel = viewModel;
         _hotkeyService = hotkeyService;
+        _clipboardService = clipboardService;
         _logger = Log.ForContext<MainWindow>();
         
         DataContext = _viewModel;
@@ -82,19 +84,29 @@ public partial class MainWindow : Window
         switch (e.Action)
         {
             case HotkeyAction.TranslateSelection:
+                // Capture selected text using the foreground window captured at hotkey press time
+                var selectedText = await _clipboardService.GetSelectedTextAsync(e.ForegroundWindow);
                 await Dispatcher.InvokeAsync(async () =>
                 {
                     ShowAndActivate();
-                    await Task.Delay(100);
-                    await _viewModel.TranslateSelectionCommand.ExecuteAsync(null);
+                    if (!string.IsNullOrWhiteSpace(selectedText))
+                    {
+                        await _viewModel.TranslateTextAsync(selectedText);
+                    }
+                    else
+                    {
+                        _viewModel.ShowNoTextSelectedError();
+                    }
                 });
                 break;
                 
             case HotkeyAction.TranslatePage:
+                // Capture browser window before showing our window
+                var browserWindow = e.ForegroundWindow;
                 await Dispatcher.InvokeAsync(async () =>
                 {
-                    await _viewModel.TranslatePageCommand.ExecuteAsync(null);
                     ShowAndActivate();
+                    await _viewModel.TranslatePageFromWindowAsync(browserWindow);
                 });
                 break;
                 

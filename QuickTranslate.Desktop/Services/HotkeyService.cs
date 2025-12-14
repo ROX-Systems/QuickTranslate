@@ -15,6 +15,9 @@ public class HotkeyService : IHotkeyService
     [DllImport("user32.dll")]
     private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
+
     public static class Modifiers
     {
         public const uint Alt = 0x0001;
@@ -92,8 +95,9 @@ public class HotkeyService : IHotkeyService
                 if ((now - _lastHotkeyTime).TotalMilliseconds >= DebounceMs)
                 {
                     _lastHotkeyTime = now;
-                    _logger.Information("Hotkey pressed: {Action}", action);
-                    HotkeyPressed?.Invoke(this, new HotkeyEventArgs(action));
+                    var foregroundWindow = GetForegroundWindow();
+                    _logger.Information("Hotkey pressed: {Action}, ForegroundWindow: {Hwnd}", action, foregroundWindow);
+                    HotkeyPressed?.Invoke(this, new HotkeyEventArgs(action, foregroundWindow));
                 }
                 else
                 {

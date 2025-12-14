@@ -116,6 +116,20 @@ public partial class MainViewModel : ObservableObject
         await TranslateCurrentTextAsync();
     }
 
+    public async Task TranslatePageFromWindowAsync(IntPtr browserWindow)
+    {
+        _logger.Information("TranslatePage triggered for window: {Hwnd}", browserWindow);
+
+        if (!_browserService.IsBrowserActive(browserWindow))
+        {
+            ShowError("No browser detected. Please open a browser and navigate to a page.");
+            return;
+        }
+
+        var url = await _browserService.GetCurrentUrlAsync(browserWindow);
+        await TranslatePageContentAsync(url);
+    }
+
     [RelayCommand]
     private async Task TranslatePageAsync()
     {
@@ -128,6 +142,11 @@ public partial class MainViewModel : ObservableObject
         }
 
         var url = await _browserService.GetCurrentUrlAsync();
+        await TranslatePageContentAsync(url);
+    }
+
+    private async Task TranslatePageContentAsync(string? url)
+    {
         
         if (string.IsNullOrEmpty(url))
         {
@@ -278,6 +297,17 @@ public partial class MainViewModel : ObservableObject
         StatusMessage = message;
         IsLoading = false;
         _logger.Warning("Error shown to user: {Message}", message);
+    }
+
+    public async Task TranslateTextAsync(string text)
+    {
+        SourceText = text;
+        await TranslateCurrentTextAsync();
+    }
+
+    public void ShowNoTextSelectedError()
+    {
+        ShowError("No text selected. Please select some text and try again.");
     }
 
     partial void OnSelectedTargetLanguageChanged(string value)

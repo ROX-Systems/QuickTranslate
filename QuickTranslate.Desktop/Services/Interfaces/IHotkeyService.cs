@@ -17,9 +17,11 @@ public enum HotkeyAction
 public class HotkeyEventArgs : EventArgs
 {
     public HotkeyAction Action { get; }
+    public IntPtr ForegroundWindow { get; }
     
-    public HotkeyEventArgs(HotkeyAction action)
+    public HotkeyEventArgs(HotkeyAction action, IntPtr foregroundWindow)
     {
         Action = action;
+        ForegroundWindow = foregroundWindow;
     }
 }

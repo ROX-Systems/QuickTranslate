@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Automation;
 using QuickTranslate.Desktop.Services.Interfaces;
 using Serilog;
 
@@ -8,17 +9,74 @@ namespace QuickTranslate.Desktop.Services;
 public class ClipboardService : IClipboardService
 {
     [DllImport("user32.dll")]
-    private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
-
-    [DllImport("user32.dll")]
     private static extern IntPtr GetForegroundWindow();
 
     [DllImport("user32.dll")]
     private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-    private const byte VK_CONTROL = 0x11;
-    private const byte VK_C = 0x43;
+    [DllImport("user32.dll")]
+    private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+
+    [DllImport("user32.dll")]
+    private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+    [DllImport("kernel32.dll")]
+    private static extern uint GetCurrentThreadId();
+
+    [DllImport("user32.dll")]
+    private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct INPUT
+    {
+        public uint type;
+        public InputUnion u;
+    }
+
+    [StructLayout(LayoutKind.Explicit)]
+    private struct InputUnion
+    {
+        [FieldOffset(0)] public MOUSEINPUT mi;
+        [FieldOffset(0)] public KEYBDINPUT ki;
+        [FieldOffset(0)] public HARDWAREINPUT hi;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MOUSEINPUT
+    {
+        public int dx;
+        public int dy;
+        public uint mouseData;
+        public uint dwFlags;
+        public uint time;
+        public IntPtr dwExtraInfo;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct KEYBDINPUT
+    {
+        public ushort wVk;
+        public ushort wScan;
+        public uint dwFlags;
+        public uint time;
+        public IntPtr dwExtraInfo;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct HARDWAREINPUT
+    {
+        public uint uMsg;
+        public ushort wParamL;
+        public ushort wParamH;
+    }
+
+    private const uint INPUT_KEYBOARD = 1;
     private const uint KEYEVENTF_KEYUP = 0x0002;
+    private const ushort VK_CONTROL = 0x11;
+    private const ushort VK_C = 0x43;
 
     private readonly ILogger _logger;
 
@@ -27,12 +85,46 @@ public class ClipboardService : IClipboardService
         _logger = Log.ForContext<ClipboardService>();
     }
 
-    public async Task<string?> GetSelectedTextAsync()
+    public async Task<string?> GetSelectedTextAsync(IntPtr? targetWindow = null)
     {
         try
         {
-            var foregroundWindow = GetForegroundWindow();
+            var foregroundWindow = targetWindow ?? GetForegroundWindow();
+            _logger.Information("GetSelectedTextAsync targeting window: {Hwnd}", foregroundWindow);
             
+            // First try UI Automation to get selected text directly
+            string? uiaText = null;
+            try
+            {
+                var focusedElement = AutomationElement.FocusedElement;
+                if (focusedElement != null)
+                {
+                    _logger.Information("Focused element: {Name}, {ControlType}", 
+                        focusedElement.Current.Name, focusedElement.Current.ControlType.ProgrammaticName);
+                    
+                    if (focusedElement.TryGetCurrentPattern(TextPattern.Pattern, out object? pattern))
+                    {
+                        var textPattern = (TextPattern)pattern;
+                        var selection = textPattern.GetSelection();
+                        if (selection.Length > 0)
+                        {
+                            uiaText = selection[0].GetText(-1);
+                            _logger.Information("Got text via UI Automation: {Length} chars", uiaText?.Length ?? 0);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Debug(ex, "UI Automation failed, falling back to clipboard");
+            }
+
+            if (!string.IsNullOrWhiteSpace(uiaText))
+            {
+                return uiaText;
+            }
+
+            // Fallback to clipboard method
             IDataObject? previousClipboardData = null;
             string? previousText = null;
             bool hadText = false;
@@ -58,16 +150,53 @@ public class ClipboardService : IClipboardService
                 }
             });
 
-            SetForegroundWindow(foregroundWindow);
-            await Task.Delay(50);
+            // Attach to target window's thread for reliable focus
+            var targetThreadId = GetWindowThreadProcessId(foregroundWindow, out _);
+            var currentThreadId = GetCurrentThreadId();
+            bool attached = false;
+            
+            if (targetThreadId != currentThreadId)
+            {
+                attached = AttachThreadInput(currentThreadId, targetThreadId, true);
+                _logger.Information("Thread attached: {Attached}", attached);
+            }
 
-            keybd_event(VK_CONTROL, 0, 0, UIntPtr.Zero);
-            keybd_event(VK_C, 0, 0, UIntPtr.Zero);
-            await Task.Delay(50);
-            keybd_event(VK_C, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
-            keybd_event(VK_CONTROL, 0, KEYEVENTF_KEYUP, UIntPtr.Zero);
+            try
+            {
+                var setFgResult = SetForegroundWindow(foregroundWindow);
+                _logger.Information("SetForegroundWindow result: {Result}", setFgResult);
+                await Task.Delay(100);
+                
+                var actualForeground = GetForegroundWindow();
+                _logger.Information("Actual foreground after SetForegroundWindow: {Hwnd} (target was {Target})", 
+                    actualForeground, foregroundWindow);
 
-            await Task.Delay(150);
+                // Release any held modifier keys first (hotkey may have Ctrl+Shift held)
+                keybd_event(0x11, 0, 0x0002, UIntPtr.Zero); // Ctrl up
+                keybd_event(0x10, 0, 0x0002, UIntPtr.Zero); // Shift up
+                keybd_event(0x12, 0, 0x0002, UIntPtr.Zero); // Alt up
+                await Task.Delay(50);
+
+                // Send Ctrl+C using keybd_event
+                keybd_event(0x11, 0, 0, UIntPtr.Zero); // Ctrl down
+                await Task.Delay(30);
+                keybd_event(0x43, 0, 0, UIntPtr.Zero); // C down
+                await Task.Delay(30);
+                keybd_event(0x43, 0, 0x0002, UIntPtr.Zero); // C up
+                await Task.Delay(30);
+                keybd_event(0x11, 0, 0x0002, UIntPtr.Zero); // Ctrl up
+                
+                _logger.Information("Sent Ctrl+C via keybd_event");
+
+                await Task.Delay(250);
+            }
+            finally
+            {
+                if (attached)
+                {
+                    AttachThreadInput(currentThreadId, targetThreadId, false);
+                }
+            }
 
             string? selectedText = null;
             
