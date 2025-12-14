@@ -21,6 +21,7 @@ public class AppSettings
     public string TargetLanguage { get; set; } = "Russian";
     public string? InterfaceLanguage { get; set; } = "ru";
     public string? ColorTheme { get; set; } = "OceanBlue";
+    public string ActiveProfileId { get; set; } = "general";
     
     private HotkeyConfig _translateSelectionHotkey = new(0x0006, 0x54); // Ctrl+Shift+T
     private HotkeyConfig _showHideHotkey = new(0x0006, 0x4F); // Ctrl+Shift+O

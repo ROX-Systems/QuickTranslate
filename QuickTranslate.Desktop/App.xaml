@@ -15,6 +15,7 @@
             <converters:InverseBooleanConverter x:Key="InverseBoolConverter"/>
             <converters:ErrorColorConverter x:Key="ErrorColorConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
+            <converters:ProfileNameConverter x:Key="ProfileNameConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

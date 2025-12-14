@@ -7,6 +7,7 @@ using QuickTranslate.Core.Models;
 using QuickTranslate.Desktop.Services;
 using QuickTranslate.Desktop.Services.Interfaces;
 using Serilog;
+using System.Linq;
 
 namespace QuickTranslate.Desktop.ViewModels;
 
@@ -43,6 +44,12 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private ProviderConfig? _selectedProvider;
+
+    [ObservableProperty]
+    private ObservableCollection<TranslationProfile> _translationProfiles = new();
+
+    [ObservableProperty]
+    private TranslationProfile? _selectedProfile;
 
     public string[] AvailableLanguages { get; } = { "Russian", "English", "German", "French", "Spanish", "Chinese", "Japanese", "Korean" };
 
@@ -83,6 +90,10 @@ public partial class MainViewModel : ObservableObject
         {
             SelectedProvider = Providers.FirstOrDefault();
         }
+        
+        TranslationProfiles = new ObservableCollection<TranslationProfile>(TranslationProfile.GetBuiltInProfiles());
+        SelectedProfile = TranslationProfiles.FirstOrDefault(p => p.Id == settings.ActiveProfileId) 
+                          ?? TranslationProfiles.FirstOrDefault();
     }
 
     partial void OnSelectedProviderChanged(ProviderConfig? value)
@@ -148,7 +159,8 @@ public partial class MainViewModel : ObservableObject
             var request = new TranslationRequest
             {
                 SourceText = SourceText,
-                TargetLanguage = SelectedTargetLanguage
+                TargetLanguage = SelectedTargetLanguage,
+                Profile = SelectedProfile
             };
 
             var result = await _translationService.TranslateAsync(request, _cancellationTokenSource.Token);
@@ -195,10 +207,14 @@ public partial class MainViewModel : ObservableObject
         try
         {
             var settings = _settingsStore.Load();
+            var profiles = TranslationProfile.GetBuiltInProfiles();
+            var activeProfile = profiles.FirstOrDefault(p => p.Id == settings.ActiveProfileId) ?? profiles.FirstOrDefault();
+            
             var request = new TranslationRequest
             {
                 SourceText = text,
-                TargetLanguage = settings.TargetLanguage
+                TargetLanguage = settings.TargetLanguage,
+                Profile = activeProfile
             };
 
             var result = await _translationService.TranslateAsync(request, CancellationToken.None);
@@ -268,6 +284,17 @@ public partial class MainViewModel : ObservableObject
         var settings = _settingsStore.Load();
         settings.TargetLanguage = value;
         _settingsStore.Save(settings);
+    }
+
+    partial void OnSelectedProfileChanged(TranslationProfile? value)
+    {
+        if (value != null)
+        {
+            var settings = _settingsStore.Load();
+            settings.ActiveProfileId = value.Id;
+            _settingsStore.Save(settings);
+            _logger.Information("Translation profile changed to: {ProfileId}", value.Id);
+        }
     }
 
     partial void OnSourceTextChanged(string value)

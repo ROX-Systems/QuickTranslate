@@ -224,4 +224,27 @@
   <data name="ColorTheme" xml:space="preserve">
     <value>Color Theme:</value>
   </data>
+  
+  <!-- Translation Profiles -->
+  <data name="TranslationProfile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Profile_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Profile_Technical" xml:space="preserve">
+    <value>Technical Documentation</value>
+  </data>
+  <data name="Profile_Literary" xml:space="preserve">
+    <value>Literary/Fiction</value>
+  </data>
+  <data name="Profile_Legal" xml:space="preserve">
+    <value>Legal Documents</value>
+  </data>
+  <data name="Profile_Medical" xml:space="preserve">
+    <value>Medical</value>
+  </data>
+  <data name="Profile_Casual" xml:space="preserve">
+    <value>Casual</value>
+  </data>
 </root>

@@ -46,14 +46,24 @@ public class TranslationService : ITranslationService
             return $@"You are a professional translator. Translate the following text from {request.SourceLanguage} to {targetLang}. 
 Provide ONLY the translation without any explanations, notes, or additional text.
 Preserve the original formatting, including line breaks and paragraphs.
-If the text contains technical terms, translate them appropriately for the context.";
+If the text contains technical terms, translate them appropriately for the context."
+                + GetProfileHint(request.Profile);
         }
 
         return $@"You are a professional translator. Detect the language of the following text and translate it to {targetLang}.
 If the text is already in {targetLang}, translate it to English instead.
 Provide ONLY the translation without any explanations, notes, or additional text.
 Preserve the original formatting, including line breaks and paragraphs.
-If the text contains technical terms, translate them appropriately for the context.";
+If the text contains technical terms, translate them appropriately for the context."
+            + GetProfileHint(request.Profile);
+    }
+
+    private static string GetProfileHint(TranslationProfile? profile)
+    {
+        if (profile == null || string.IsNullOrEmpty(profile.SystemPromptHint))
+            return string.Empty;
+        
+        return $"\n\nAdditional context: {profile.SystemPromptHint}";
     }
 
     private string CleanTranslationOutput(string text)

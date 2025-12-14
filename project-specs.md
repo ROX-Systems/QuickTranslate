@@ -43,3 +43,10 @@ QuickTranslate.sln
 - ViewModels use `ObservableProperty` attribute from CommunityToolkit
 - Settings stored via `ISettingsStore` interface
 - Provider configuration supports multiple AI backends
+
+### Translation Profiles
+- Users can select a translation profile to optimize AI prompts for specific content types
+- Built-in profiles: General, Technical, Literary, Legal, Medical, Casual
+- Profiles stored in `TranslationProfile.cs` with `NameKey` for localization
+- Active profile saved in `AppSettings.ActiveProfileId`
+- Profile hints are appended to the system prompt in `TranslationService`

@@ -51,3 +51,20 @@ public class BoolToVisibilityConverter : IValueConverter
         throw new NotImplementedException();
     }
 }
+
+public class ProfileNameConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is QuickTranslate.Core.Models.TranslationProfile profile)
+        {
+            return Services.LocalizationService.Instance[profile.NameKey];
+        }
+        return value?.ToString() ?? string.Empty;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}

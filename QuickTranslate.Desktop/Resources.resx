@@ -224,4 +224,27 @@
   <data name="ColorTheme" xml:space="preserve">
     <value>Цветовая тема:</value>
   </data>
+  
+  <!-- Translation Profiles -->
+  <data name="TranslationProfile" xml:space="preserve">
+    <value>Профиль</value>
+  </data>
+  <data name="Profile_General" xml:space="preserve">
+    <value>Общий</value>
+  </data>
+  <data name="Profile_Technical" xml:space="preserve">
+    <value>Техническая документация</value>
+  </data>
+  <data name="Profile_Literary" xml:space="preserve">
+    <value>Художественная литература</value>
+  </data>
+  <data name="Profile_Legal" xml:space="preserve">
+    <value>Юридические документы</value>
+  </data>
+  <data name="Profile_Medical" xml:space="preserve">
+    <value>Медицина</value>
+  </data>
+  <data name="Profile_Casual" xml:space="preserve">
+    <value>Разговорный</value>
+  </data>
 </root>

@@ -224,4 +224,27 @@
   <data name="ColorTheme" xml:space="preserve">
     <value>Хуызы темæ:</value>
   </data>
+  
+  <!-- Translation Profiles -->
+  <data name="TranslationProfile" xml:space="preserve">
+    <value>Профиль</value>
+  </data>
+  <data name="Profile_General" xml:space="preserve">
+    <value>Æмбарыстгæнæн</value>
+  </data>
+  <data name="Profile_Technical" xml:space="preserve">
+    <value>Техникон документ</value>
+  </data>
+  <data name="Profile_Literary" xml:space="preserve">
+    <value>Аргъауон литературæ</value>
+  </data>
+  <data name="Profile_Legal" xml:space="preserve">
+    <value>Закъонгæнæн документ</value>
+  </data>
+  <data name="Profile_Medical" xml:space="preserve">
+    <value>Дохтыргæнæн</value>
+  </data>
+  <data name="Profile_Casual" xml:space="preserve">
+    <value>Æмбарыстгæнæн</value>
+  </data>
 </root>
