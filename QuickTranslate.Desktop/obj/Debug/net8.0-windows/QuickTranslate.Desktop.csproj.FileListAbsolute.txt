@@ -47,3 +47,5 @@ D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Deskt
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\QuickTranslate.Desktop.sourcelink.json
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\Views\TranslationPopup.baml
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\Views\TranslationPopup.g.cs
+D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\bin\Debug\net8.0-windows\Wpf.Ui.dll
+D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\bin\Debug\net8.0-windows\Wpf.Ui.Abstractions.dll

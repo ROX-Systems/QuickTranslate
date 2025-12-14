@@ -8,10 +8,11 @@ using QuickTranslate.Desktop.Services;
 using QuickTranslate.Desktop.Services.Interfaces;
 using QuickTranslate.Desktop.ViewModels;
 using Serilog;
+using Wpf.Ui.Controls;
 
 namespace QuickTranslate.Desktop.Views;
 
-public partial class MainWindow : Window
+public partial class MainWindow : FluentWindow
 {
     private readonly MainViewModel _viewModel;
     private readonly HotkeyService _hotkeyService;
@@ -192,5 +193,38 @@ public partial class MainWindow : Window
         
         _viewModel.LoadSettings();
         RegisterHotkeysFromSettings();
+    }
+
+    private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        var ctrl = (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0;
+        
+        switch (e.Key)
+        {
+            case System.Windows.Input.Key.Enter when ctrl:
+                if (_viewModel.TranslateCommand.CanExecute(null))
+                {
+                    _viewModel.TranslateCommand.Execute(null);
+                    e.Handled = true;
+                }
+                break;
+                
+            case System.Windows.Input.Key.Delete when ctrl:
+                _viewModel.ClearCommand.Execute(null);
+                e.Handled = true;
+                break;
+                
+            case System.Windows.Input.Key.V when ctrl:
+                // Let default paste work in TextBox, but also update via command
+                break;
+                
+            case System.Windows.Input.Key.Escape:
+                if (_viewModel.IsLoading)
+                {
+                    _viewModel.CancelCommand.Execute(null);
+                    e.Handled = true;
+                }
+                break;
+        }
     }
 }

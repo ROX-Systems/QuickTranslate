@@ -1,11 +1,12 @@
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using QuickTranslate.Desktop.ViewModels;
+using Wpf.Ui.Controls;
+using TextBox = System.Windows.Controls.TextBox;
 
 namespace QuickTranslate.Desktop.Views;
 
-public partial class SettingsWindow : Window
+public partial class SettingsWindow : FluentWindow
 {
     private readonly SettingsViewModel _viewModel;
 
@@ -88,7 +89,7 @@ public partial class SettingsWindow : Window
 
     private void ResetHotkey_Click(object sender, RoutedEventArgs e)
     {
-        var button = (Button)sender;
+        var button = (Wpf.Ui.Controls.Button)sender;
         var hotkeyName = button.Tag?.ToString();
 
         if (hotkeyName == "TranslateSelection")

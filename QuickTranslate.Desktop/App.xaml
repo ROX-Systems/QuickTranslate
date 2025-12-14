@@ -2,11 +2,19 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="clr-namespace:QuickTranslate.Desktop.Converters"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              Startup="Application_Startup"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
-        <converters:InverseBooleanConverter x:Key="InverseBoolConverter"/>
-        <converters:ErrorColorConverter x:Key="ErrorColorConverter"/>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Dark"/>
+                <ui:ControlsDictionary/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <converters:InverseBooleanConverter x:Key="InverseBoolConverter"/>
+            <converters:ErrorColorConverter x:Key="ErrorColorConverter"/>
+            <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

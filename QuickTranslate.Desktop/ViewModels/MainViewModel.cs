@@ -45,6 +45,9 @@ public partial class MainViewModel : ObservableObject
 
     public string[] AvailableLanguages { get; } = { "Russian", "English", "German", "French", "Spanish", "Chinese", "Japanese", "Korean" };
 
+    public int SourceCharacterCount => SourceText?.Length ?? 0;
+    public int TranslatedCharacterCount => TranslatedText?.Length ?? 0;
+
     public MainViewModel(
         ITranslationService translationService,
         ISettingsStore settingsStore,
@@ -261,5 +264,38 @@ public partial class MainViewModel : ObservableObject
         var settings = _settingsStore.Load();
         settings.TargetLanguage = value;
         _settingsStore.Save(settings);
+    }
+
+    partial void OnSourceTextChanged(string value)
+    {
+        OnPropertyChanged(nameof(SourceCharacterCount));
+    }
+
+    partial void OnTranslatedTextChanged(string value)
+    {
+        OnPropertyChanged(nameof(TranslatedCharacterCount));
+    }
+
+    [RelayCommand]
+    private void SwapTexts()
+    {
+        if (!string.IsNullOrEmpty(TranslatedText))
+        {
+            var temp = SourceText;
+            SourceText = TranslatedText;
+            TranslatedText = temp;
+            StatusMessage = "Texts swapped";
+        }
+    }
+
+    [RelayCommand]
+    private void Paste()
+    {
+        var text = _clipboardService.GetText();
+        if (!string.IsNullOrEmpty(text))
+        {
+            SourceText = text;
+            StatusMessage = "Pasted from clipboard";
+        }
     }
 }

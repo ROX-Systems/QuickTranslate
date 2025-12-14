@@ -1,272 +1,270 @@
-<Window x:Class="QuickTranslate.Desktop.Views.SettingsWindow"
+<ui:FluentWindow x:Class="QuickTranslate.Desktop.Views.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
         Title="Settings - QuickTranslate" 
-        Height="620" 
-        Width="700"
+        Height="650" 
+        Width="750"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
-        MinHeight="500"
-        MinWidth="600"
-        Background="#1e1e1e"
-        Foreground="White">
+        MinHeight="550"
+        MinWidth="650"
+        Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+        Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+        ExtendsContentIntoTitleBar="True"
+        WindowBackdropType="Mica">
     
-    <Window.Resources>
+    <ui:FluentWindow.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         
-        <Style x:Key="ModernButton" TargetType="Button">
-            <Setter Property="Background" Value="#0078d4"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                CornerRadius="4" 
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#1084d8"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="#555"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
-            <Setter Property="Background" Value="#3a3a3a"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#4a4a4a"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="SmallButton" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="FontSize" Value="11"/>
-        </Style>
-
         <Style x:Key="FieldLabel" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#aaa"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="Foreground" Value="{ui:ThemeResource TextFillColorSecondaryBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
             <Setter Property="FontSize" Value="12"/>
         </Style>
 
-        <Style x:Key="ModernTextBox" TargetType="TextBox">
-            <Setter Property="Background" Value="#2d2d2d"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#3d3d3d"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="CaretBrush" Value="White"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{ui:ThemeResource AccentTextFillColorPrimaryBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
         </Style>
+    </ui:FluentWindow.Resources>
 
-        <Style x:Key="ModernComboBox" TargetType="ComboBox">
-            <Setter Property="Background" Value="#2d2d2d"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="#3d3d3d"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
-
-        <Style x:Key="ModernListBox" TargetType="ListBox">
-            <Setter Property="Background" Value="#252525"/>
-            <Setter Property="BorderBrush" Value="#3d3d3d"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-    </Window.Resources>
-
-    <Grid Margin="16">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="16"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        
+        <ui:TitleBar Grid.Row="0" Title="Settings"/>
+        
+        <Grid Grid.Row="1" Margin="16,8,16,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- Left Panel: Provider List -->
-        <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,0,8">
-            <TextBlock Text="AI Providers" FontSize="14" FontWeight="SemiBold" Foreground="#0078d4" Margin="0,0,0,8"/>
-            <StackPanel Orientation="Horizontal">
-                <Button Content="+ Add" Command="{Binding AddProviderCommand}" Style="{StaticResource SmallButton}" Margin="0,0,4,0"/>
-                <Button Content="⧉ Copy" Command="{Binding DuplicateProviderCommand}" Style="{StaticResource SmallButton}" Margin="0,0,4,0"/>
-                <Button Content="✕ Delete" Command="{Binding DeleteProviderCommand}" Style="{StaticResource SmallButton}"/>
+            <!-- Left Panel: Provider List -->
+            <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,0,12">
+                <TextBlock Text="AI Providers" Style="{StaticResource SectionHeader}"/>
+                <StackPanel Orientation="Horizontal">
+                    <ui:Button Command="{Binding AddProviderCommand}" Appearance="Secondary" Margin="0,0,4,0">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Add24" Margin="0,0,4,0"/>
+                            <TextBlock Text="Add" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:Button>
+                    <ui:Button Command="{Binding DuplicateProviderCommand}" Appearance="Secondary" Margin="0,0,4,0">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Copy24" Margin="0,0,4,0"/>
+                            <TextBlock Text="Copy" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:Button>
+                    <ui:Button Command="{Binding DeleteProviderCommand}" Appearance="Secondary">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Delete24" Margin="0,0,4,0"/>
+                            <TextBlock Text="Delete" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:Button>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
 
-        <ListBox Grid.Column="0" Grid.Row="1"
-                 ItemsSource="{Binding Providers}"
-                 SelectedItem="{Binding SelectedProvider}"
-                 Style="{StaticResource ModernListBox}"
-                 DisplayMemberPath="Name"
-                 Margin="0,0,0,8"/>
+            <ListBox Grid.Column="0" Grid.Row="1"
+                     ItemsSource="{Binding Providers}"
+                     SelectedItem="{Binding SelectedProvider}"
+                     DisplayMemberPath="Name"
+                     Margin="0,0,0,8"/>
 
-        <!-- Right Panel: Provider Settings -->
-        <TextBlock Grid.Column="2" Grid.Row="0" 
-                   Text="Provider Configuration" 
-                   FontSize="14" 
-                   FontWeight="SemiBold"
-                   Foreground="#0078d4"
-                   Margin="0,0,0,8"/>
+            <!-- Right Panel: Provider Settings -->
+            <TextBlock Grid.Column="2" Grid.Row="0" 
+                       Text="Provider Configuration" 
+                       Style="{StaticResource SectionHeader}"/>
 
-        <ScrollViewer Grid.Column="2" Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel IsEnabled="{Binding HasSelectedProvider}">
-                <!-- Provider Name -->
-                <TextBlock Text="Provider Name" Style="{StaticResource FieldLabel}"/>
-                <TextBox Text="{Binding ProviderName, UpdateSourceTrigger=PropertyChanged}" 
-                         Style="{StaticResource ModernTextBox}"/>
+            <ScrollViewer Grid.Column="2" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel IsEnabled="{Binding HasSelectedProvider}">
+                    <!-- Provider Name -->
+                    <TextBlock Text="Provider Name" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding ProviderName, UpdateSourceTrigger=PropertyChanged}" 
+                             Margin="0,0,0,12"/>
 
-                <!-- Base URL -->
-                <TextBlock Text="Base URL" Style="{StaticResource FieldLabel}"/>
-                <TextBox Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" 
-                         Style="{StaticResource ModernTextBox}"/>
+                    <!-- Base URL -->
+                    <TextBlock Text="Base URL" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" 
+                             Margin="0,0,0,12"/>
 
-                <!-- API Key -->
-                <TextBlock Text="API Key" Style="{StaticResource FieldLabel}"/>
-                <TextBox Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}" 
-                         Style="{StaticResource ModernTextBox}"/>
+                    <!-- API Key -->
+                    <TextBlock Text="API Key" Style="{StaticResource FieldLabel}"/>
+                    <PasswordBox x:Name="ApiKeyBox" 
+                                 Margin="0,0,0,12"/>
 
-                <!-- Model -->
-                <TextBlock Text="Model" Style="{StaticResource FieldLabel}"/>
-                <TextBox Text="{Binding Model, UpdateSourceTrigger=PropertyChanged}" 
-                         Style="{StaticResource ModernTextBox}"/>
+                    <!-- Model -->
+                    <TextBlock Text="Model" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding Model, UpdateSourceTrigger=PropertyChanged}" 
+                             Margin="0,0,0,12"/>
 
-                <!-- Temperature & Max Tokens -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Temperature (0-2)" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Text="{Binding Temperature, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource ModernTextBox}"/>
+                    <!-- Temperature & Max Tokens -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Temperature (0-2)" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding Temperature, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Max Tokens" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding MaxTokens, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Timeout -->
+                    <TextBlock Text="Timeout (seconds)" Style="{StaticResource FieldLabel}"/>
+                    <TextBox Text="{Binding TimeoutSeconds, UpdateSourceTrigger=PropertyChanged}" 
+                             Width="120"
+                             HorizontalAlignment="Left"
+                             Margin="0,0,0,16"/>
+
+                    <ui:Button Command="{Binding TestConnectionCommand}"
+                               Appearance="Secondary"
+                               HorizontalAlignment="Left"
+                               IsEnabled="{Binding IsTesting, Converter={StaticResource InverseBoolConverter}}">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Link24" Margin="0,0,6,0"/>
+                            <TextBlock Text="Test Connection" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ui:Button>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Global Settings -->
+            <ui:Card Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Margin="0,12,0,0" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Global Settings" Style="{StaticResource SectionHeader}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="Default Target Language:" 
+                                   Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
+                                   VerticalAlignment="Center" 
+                                   Margin="0,0,12,0"/>
+                        <ComboBox ItemsSource="{Binding AvailableLanguages}"
+                                  SelectedItem="{Binding TargetLanguage}"
+                                  Width="150"/>
                     </StackPanel>
                     
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Max Tokens" Style="{StaticResource FieldLabel}"/>
-                        <TextBox Text="{Binding MaxTokens, UpdateSourceTrigger=PropertyChanged}" 
-                                 Style="{StaticResource ModernTextBox}"/>
-                    </StackPanel>
-                </Grid>
+                    <!-- Hotkeys -->
+                    <TextBlock Text="Keyboard Shortcuts" 
+                               FontSize="13" 
+                               FontWeight="SemiBold" 
+                               Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
+                               Margin="0,0,0,12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180"/>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Grid.Row="0" Grid.Column="0" 
+                                   Text="Translate Selection:" 
+                                   Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
+                                   VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" 
+                                 x:Name="TranslateSelectionHotkeyBox"
+                                 Text="{Binding TranslateSelectionHotkeyText, Mode=OneWay}"
+                                 IsReadOnly="True"
+                                 Margin="0,0,8,12"
+                                 PreviewKeyDown="HotkeyBox_PreviewKeyDown"
+                                 GotFocus="HotkeyBox_GotFocus"
+                                 LostFocus="HotkeyBox_LostFocus"
+                                 Tag="TranslateSelection"/>
+                        <ui:Button Grid.Row="0" Grid.Column="2" 
+                                   Appearance="Secondary"
+                                   Click="ResetHotkey_Click" 
+                                   Tag="TranslateSelection" 
+                                   Margin="0,0,0,12">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ArrowReset24" Margin="0,0,4,0"/>
+                                <TextBlock Text="Reset" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:Button>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" 
+                                   Text="Show/Hide Window:" 
+                                   Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
+                                   VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" 
+                                 x:Name="ShowHideHotkeyBox"
+                                 Text="{Binding ShowHideHotkeyText, Mode=OneWay}"
+                                 IsReadOnly="True"
+                                 Margin="0,0,8,0"
+                                 PreviewKeyDown="HotkeyBox_PreviewKeyDown"
+                                 GotFocus="HotkeyBox_GotFocus"
+                                 LostFocus="HotkeyBox_LostFocus"
+                                 Tag="ShowHide"/>
+                        <ui:Button Grid.Row="1" Grid.Column="2" 
+                                   Appearance="Secondary"
+                                   Click="ResetHotkey_Click" 
+                                   Tag="ShowHide">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ArrowReset24" Margin="0,0,4,0"/>
+                                <TextBlock Text="Reset" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ui:Button>
+                    </Grid>
+                </StackPanel>
+            </ui:Card>
 
-                <!-- Timeout -->
-                <TextBlock Text="Timeout (seconds)" Style="{StaticResource FieldLabel}"/>
-                <TextBox Text="{Binding TimeoutSeconds, UpdateSourceTrigger=PropertyChanged}" 
-                         Style="{StaticResource ModernTextBox}"
-                         Width="100"
-                         HorizontalAlignment="Left"/>
-
-                <Button Content="🔗 Test Connection" 
-                        Command="{Binding TestConnectionCommand}"
-                        Style="{StaticResource SecondaryButton}"
-                        HorizontalAlignment="Left"
-                        IsEnabled="{Binding IsTesting, Converter={StaticResource InverseBoolConverter}}"
-                        Margin="0,4,0,0"/>
-            </StackPanel>
-        </ScrollViewer>
-
-        <!-- Global Settings -->
-        <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Margin="0,12,0,0">
-            <TextBlock Text="Global Settings" FontSize="12" FontWeight="SemiBold" Foreground="#888" Margin="0,0,0,8"/>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                <TextBlock Text="Default Target Language:" Foreground="#aaa" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <ComboBox ItemsSource="{Binding AvailableLanguages}"
-                          SelectedItem="{Binding TargetLanguage}"
-                          Style="{StaticResource ModernComboBox}"
-                          Width="150"
-                          Margin="0"/>
-            </StackPanel>
-            
-            <!-- Hotkeys -->
-            <TextBlock Text="Hotkeys" FontSize="12" FontWeight="SemiBold" Foreground="#888" Margin="0,8,0,8"/>
-            <Grid>
+            <!-- Status & Buttons -->
+            <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" Margin="0,16,0,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="180"/>
-                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="{Binding StatusMessage}" 
+                           Foreground="{ui:ThemeResource AccentTextFillColorPrimaryBrush}"
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap"/>
+
+                <ui:Button Grid.Column="1" 
+                           Appearance="Secondary"
+                           Click="Cancel_Click"
+                           Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Dismiss24" Margin="0,0,6,0"/>
+                        <TextBlock Text="Cancel" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ui:Button>
                 
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Translate Selection:" Foreground="#aaa" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="0" Grid.Column="1" 
-                         x:Name="TranslateSelectionHotkeyBox"
-                         Text="{Binding TranslateSelectionHotkeyText, Mode=OneWay}"
-                         Style="{StaticResource ModernTextBox}"
-                         IsReadOnly="True"
-                         Margin="0,0,8,0"
-                         PreviewKeyDown="HotkeyBox_PreviewKeyDown"
-                         GotFocus="HotkeyBox_GotFocus"
-                         LostFocus="HotkeyBox_LostFocus"
-                         Tag="TranslateSelection"/>
-                <Button Grid.Row="0" Grid.Column="2" Content="Reset" Style="{StaticResource SmallButton}" 
-                        Click="ResetHotkey_Click" Tag="TranslateSelection" Margin="0,0,0,10"/>
-                
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Show/Hide Window:" Foreground="#aaa" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="1" Grid.Column="1" 
-                         x:Name="ShowHideHotkeyBox"
-                         Text="{Binding ShowHideHotkeyText, Mode=OneWay}"
-                         Style="{StaticResource ModernTextBox}"
-                         IsReadOnly="True"
-                         Margin="0,0,8,0"
-                         PreviewKeyDown="HotkeyBox_PreviewKeyDown"
-                         GotFocus="HotkeyBox_GotFocus"
-                         LostFocus="HotkeyBox_LostFocus"
-                         Tag="ShowHide"/>
-                <Button Grid.Row="1" Grid.Column="2" Content="Reset" Style="{StaticResource SmallButton}" 
-                        Click="ResetHotkey_Click" Tag="ShowHide" Margin="0,0,0,10"/>
+                <ui:Button Grid.Column="2" 
+                           Appearance="Primary"
+                           Command="{Binding SaveCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Save24" Margin="0,0,6,0"/>
+                        <TextBlock Text="Save All" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </ui:Button>
             </Grid>
-        </StackPanel>
-
-        <!-- Status & Buttons -->
-        <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="3" Margin="0,16,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <TextBlock Grid.Column="0"
-                       Text="{Binding StatusMessage}" 
-                       Foreground="#0078d4"
-                       VerticalAlignment="Center"
-                       TextWrapping="Wrap"/>
-
-            <Button Grid.Column="1" 
-                    Content="Cancel" 
-                    Style="{StaticResource SecondaryButton}"
-                    Click="Cancel_Click"
-                    Margin="0,0,8,0"
-                    Padding="16,8"/>
-            
-            <Button Grid.Column="2" 
-                    Content="Save All" 
-                    Command="{Binding SaveCommand}"
-                    Style="{StaticResource ModernButton}"
-                    Padding="16,8"/>
         </Grid>
     </Grid>
-</Window>
+</ui:FluentWindow>

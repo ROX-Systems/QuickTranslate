@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Wz+q4Vav1uc=",
+  "dgSpecHash": "iSEvohdgL7Y=",
   "success": true,
   "projectFilePath": "D:\\projects\\CascadeProjects\\windsurf-project\\QuickTranslate\\QuickTranslate.Desktop\\QuickTranslate.Desktop.csproj",
   "expectedPackageFiles": [
@@ -26,7 +26,9 @@
     "C:\\Users\\admin\\.nuget\\packages\\system.diagnostics.diagnosticsource\\8.0.0\\system.diagnostics.diagnosticsource.8.0.0.nupkg.sha512",
     "C:\\Users\\admin\\.nuget\\packages\\system.drawing.common\\8.0.0\\system.drawing.common.8.0.0.nupkg.sha512",
     "C:\\Users\\admin\\.nuget\\packages\\system.security.cryptography.protecteddata\\8.0.0\\system.security.cryptography.protecteddata.8.0.0.nupkg.sha512",
-    "C:\\Users\\admin\\.nuget\\packages\\system.text.json\\8.0.5\\system.text.json.8.0.5.nupkg.sha512"
+    "C:\\Users\\admin\\.nuget\\packages\\system.text.json\\8.0.5\\system.text.json.8.0.5.nupkg.sha512",
+    "C:\\Users\\admin\\.nuget\\packages\\wpf-ui\\4.1.0\\wpf-ui.4.1.0.nupkg.sha512",
+    "C:\\Users\\admin\\.nuget\\packages\\wpf-ui.abstractions\\4.1.0\\wpf-ui.abstractions.4.1.0.nupkg.sha512"
   ],
   "logs": []
 }
