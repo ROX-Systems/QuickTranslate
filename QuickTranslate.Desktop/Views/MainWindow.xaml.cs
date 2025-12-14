@@ -42,16 +42,25 @@ public partial class MainWindow : FluentWindow
     {
         try
         {
-            using var bitmap = new Bitmap(32, 32);
-            using var g = Graphics.FromImage(bitmap);
-            g.Clear(Color.FromArgb(0, 120, 212));
-            using var font = new Font("Segoe UI", 16, System.Drawing.FontStyle.Bold);
-            using var brush = new SolidBrush(Color.White);
-            g.DrawString("T", font, brush, 6, 2);
-            
-            var hIcon = bitmap.GetHicon();
-            var icon = System.Drawing.Icon.FromHandle(hIcon);
-            TrayIcon.Icon = icon;
+            var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
+            if (System.IO.File.Exists(iconPath))
+            {
+                TrayIcon.Icon = new System.Drawing.Icon(iconPath);
+            }
+            else
+            {
+                // Fallback to generated icon if file doesn't exist
+                using var bitmap = new Bitmap(32, 32);
+                using var g = Graphics.FromImage(bitmap);
+                g.Clear(Color.FromArgb(0, 120, 212));
+                using var font = new Font("Segoe UI", 16, System.Drawing.FontStyle.Bold);
+                using var brush = new SolidBrush(Color.White);
+                g.DrawString("T", font, brush, 6, 2);
+                
+                var hIcon = bitmap.GetHicon();
+                var icon = System.Drawing.Icon.FromHandle(hIcon);
+                TrayIcon.Icon = icon;
+            }
         }
         catch (Exception ex)
         {

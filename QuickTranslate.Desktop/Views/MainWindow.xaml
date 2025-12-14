@@ -19,7 +19,8 @@
         StateChanged="Window_StateChanged"
         PreviewKeyDown="Window_PreviewKeyDown"
         ExtendsContentIntoTitleBar="True"
-        WindowBackdropType="Mica">
+        WindowBackdropType="Mica"
+        Icon="pack://application:,,,/icon.ico">
     
     <Grid>
         <Grid.RowDefinitions>
@@ -86,7 +87,8 @@
                                    FontSize="11" 
                                    Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"/>
                         <ComboBox ItemsSource="{Binding AvailableLanguages}"
-                                  SelectedItem="{Binding SelectedTargetLanguage}"
+                                  Text="{Binding SelectedTargetLanguage, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                  IsEditable="True"
                                   Width="120"
                                   Padding="8,4"/>
                     </StackPanel>

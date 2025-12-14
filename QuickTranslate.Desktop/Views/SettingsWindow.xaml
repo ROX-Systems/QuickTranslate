@@ -162,7 +162,8 @@
                                    VerticalAlignment="Center" 
                                    Margin="0,0,12,0"/>
                         <ComboBox ItemsSource="{Binding AvailableLanguages}"
-                                  SelectedItem="{Binding TargetLanguage}"
+                                  Text="{Binding TargetLanguage, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                  IsEditable="True"
                                   Width="150"/>
                     </StackPanel>
                     
