@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
-        Title="Settings - QuickTranslate" 
+        Title="Настройки - QuickTranslate" 
         Height="650" 
         Width="750"
         WindowStartupLocation="CenterOwner"
@@ -40,7 +40,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <ui:TitleBar Grid.Row="0" Title="Settings"/>
+        <ui:TitleBar Grid.Row="0" Title="Настройки"/>
         
         <Grid Grid.Row="1" Margin="16,8,16,16">
             <Grid.ColumnDefinitions>
@@ -57,24 +57,24 @@
 
             <!-- Left Panel: Provider List -->
             <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,0,12">
-                <TextBlock Text="AI Providers" Style="{StaticResource SectionHeader}"/>
+                <TextBlock Text="Поставщики AI" Style="{StaticResource SectionHeader}"/>
                 <StackPanel Orientation="Horizontal">
                     <ui:Button Command="{Binding AddProviderCommand}" Appearance="Secondary" Margin="0,0,4,0">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Add24" Margin="0,0,4,0"/>
-                            <TextBlock Text="Add" VerticalAlignment="Center"/>
+                            <TextBlock Text="Добавить" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ui:Button>
                     <ui:Button Command="{Binding DuplicateProviderCommand}" Appearance="Secondary" Margin="0,0,4,0">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Copy24" Margin="0,0,4,0"/>
-                            <TextBlock Text="Copy" VerticalAlignment="Center"/>
+                            <TextBlock Text="Копировать" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ui:Button>
                     <ui:Button Command="{Binding DeleteProviderCommand}" Appearance="Secondary">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Delete24" Margin="0,0,4,0"/>
-                            <TextBlock Text="Delete" VerticalAlignment="Center"/>
+                            <TextBlock Text="Удалить" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ui:Button>
                 </StackPanel>
@@ -88,28 +88,28 @@
 
             <!-- Right Panel: Provider Settings -->
             <TextBlock Grid.Column="2" Grid.Row="0" 
-                       Text="Provider Configuration" 
+                       Text="Настройки провайдера" 
                        Style="{StaticResource SectionHeader}"/>
 
             <ScrollViewer Grid.Column="2" Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel IsEnabled="{Binding HasSelectedProvider}">
                     <!-- Provider Name -->
-                    <TextBlock Text="Provider Name" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="Имя провайдера" Style="{StaticResource FieldLabel}"/>
                     <TextBox Text="{Binding ProviderName, UpdateSourceTrigger=PropertyChanged}" 
                              Margin="0,0,0,12"/>
 
                     <!-- Base URL -->
-                    <TextBlock Text="Base URL" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="Базовый URL" Style="{StaticResource FieldLabel}"/>
                     <TextBox Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" 
                              Margin="0,0,0,12"/>
 
                     <!-- API Key -->
-                    <TextBlock Text="API Key" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="Ключ API" Style="{StaticResource FieldLabel}"/>
                     <PasswordBox x:Name="ApiKeyBox" 
                                  Margin="0,0,0,12"/>
 
                     <!-- Model -->
-                    <TextBlock Text="Model" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="Модель" Style="{StaticResource FieldLabel}"/>
                     <TextBox Text="{Binding Model, UpdateSourceTrigger=PropertyChanged}" 
                              Margin="0,0,0,12"/>
 
@@ -122,18 +122,18 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Temperature (0-2)" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="Температура (0-2)" Style="{StaticResource FieldLabel}"/>
                             <TextBox Text="{Binding Temperature, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="Max Tokens" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="Максимум токенов" Style="{StaticResource FieldLabel}"/>
                             <TextBox Text="{Binding MaxTokens, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </Grid>
 
                     <!-- Timeout -->
-                    <TextBlock Text="Timeout (seconds)" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="Таймаут (секунды)" Style="{StaticResource FieldLabel}"/>
                     <TextBox Text="{Binding TimeoutSeconds, UpdateSourceTrigger=PropertyChanged}" 
                              Width="120"
                              HorizontalAlignment="Left"
@@ -145,7 +145,7 @@
                                IsEnabled="{Binding IsTesting, Converter={StaticResource InverseBoolConverter}}">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Link24" Margin="0,0,6,0"/>
-                            <TextBlock Text="Test Connection" VerticalAlignment="Center"/>
+                            <TextBlock Text="Проверить соединение" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ui:Button>
                 </StackPanel>
@@ -154,9 +154,9 @@
             <!-- Global Settings -->
             <ui:Card Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Margin="0,12,0,0" Padding="16">
                 <StackPanel>
-                    <TextBlock Text="Global Settings" Style="{StaticResource SectionHeader}"/>
+                    <TextBlock Text="Общие настройки" Style="{StaticResource SectionHeader}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <TextBlock Text="Default Target Language:" 
+                        <TextBlock Text="Язык перевода по умолчанию:" 
                                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
                                    VerticalAlignment="Center" 
                                    Margin="0,0,12,0"/>
@@ -166,7 +166,7 @@
                     </StackPanel>
                     
                     <!-- Hotkeys -->
-                    <TextBlock Text="Keyboard Shortcuts" 
+                    <TextBlock Text="Горячие клавиши" 
                                FontSize="13" 
                                FontWeight="SemiBold" 
                                Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
@@ -183,7 +183,7 @@
                         </Grid.RowDefinitions>
                         
                         <TextBlock Grid.Row="0" Grid.Column="0" 
-                                   Text="Translate Selection:" 
+                                   Text="Перевести выделенное:" 
                                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
                                    VerticalAlignment="Center"/>
                         <TextBox Grid.Row="0" Grid.Column="1" 
@@ -202,12 +202,12 @@
                                    Margin="0,0,0,12">
                             <StackPanel Orientation="Horizontal">
                                 <ui:SymbolIcon Symbol="ArrowReset24" Margin="0,0,4,0"/>
-                                <TextBlock Text="Reset" VerticalAlignment="Center"/>
+                                <TextBlock Text="Сбросить" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ui:Button>
                         
                         <TextBlock Grid.Row="1" Grid.Column="0" 
-                                   Text="Show/Hide Window:" 
+                                   Text="Показать/Скрыть окно:" 
                                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
                                    VerticalAlignment="Center"/>
                         <TextBox Grid.Row="1" Grid.Column="1" 
@@ -225,7 +225,7 @@
                                    Tag="ShowHide">
                             <StackPanel Orientation="Horizontal">
                                 <ui:SymbolIcon Symbol="ArrowReset24" Margin="0,0,4,0"/>
-                                <TextBlock Text="Reset" VerticalAlignment="Center"/>
+                                <TextBlock Text="Сбросить" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ui:Button>
                     </Grid>
@@ -252,7 +252,7 @@
                            Margin="0,0,8,0">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Dismiss24" Margin="0,0,6,0"/>
-                        <TextBlock Text="Cancel" VerticalAlignment="Center"/>
+                        <TextBlock Text="Отмена" VerticalAlignment="Center"/>
                     </StackPanel>
                 </ui:Button>
                 
@@ -261,7 +261,7 @@
                            Command="{Binding SaveCommand}">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Save24" Margin="0,0,6,0"/>
-                        <TextBlock Text="Save All" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock Text="Сохранить всё" VerticalAlignment="Center" FontWeight="SemiBold"/>
                     </StackPanel>
                 </ui:Button>
             </Grid>

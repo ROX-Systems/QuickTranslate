@@ -23,7 +23,7 @@ public partial class TranslationPopup : Window
         LoadingPanel.Visibility = Visibility.Collapsed;
         ErrorBorder.Visibility = Visibility.Collapsed;
         TranslationScrollViewer.Visibility = Visibility.Visible;
-        CharacterCountText.Text = $"{text.Length} characters";
+        CharacterCountText.Text = $"{text.Length} символов";
     }
 
     public void SetError(string error)
@@ -91,6 +91,14 @@ public partial class TranslationPopup : Window
         if (!string.IsNullOrEmpty(TranslatedText))
         {
             Clipboard.SetText(TranslatedText);
+        }
+    }
+
+    private void Border_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+        {
+            DragMove();
         }
     }
 }

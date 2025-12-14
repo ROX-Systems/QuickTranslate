@@ -56,10 +56,10 @@
                                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
                                    Margin="0,0,8,0"/>
                     <StackPanel>
-                        <TextBlock Text="Source" 
+                        <TextBlock Text="Источник" 
                                    FontSize="11" 
                                    Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"/>
-                        <TextBlock Text="Auto-detect" 
+                        <TextBlock Text="Автоопределение" 
                                    FontSize="14" 
                                    FontWeight="SemiBold"
                                    Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"/>
@@ -69,7 +69,7 @@
                 <!-- Swap Button -->
                 <ui:Button Grid.Column="1" 
                            Appearance="Transparent"
-                           ToolTip="Swap source and translation"
+                           ToolTip="Поменять местами"
                            Command="{Binding SwapTextsCommand}"
                            Margin="16,0">
                     <ui:SymbolIcon Symbol="ArrowSwap24" FontSize="18"/>
@@ -81,7 +81,7 @@
                                    Foreground="{ui:ThemeResource AccentTextFillColorPrimaryBrush}"
                                    Margin="0,0,8,0"/>
                     <StackPanel>
-                        <TextBlock Text="Translate to" 
+                        <TextBlock Text="Перевести на" 
                                    FontSize="11" 
                                    Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"/>
                         <ComboBox ItemsSource="{Binding AvailableLanguages}"
@@ -95,7 +95,7 @@
                 <ui:Button Grid.Column="3" 
                            Appearance="Transparent"
                            Click="Settings_Click"
-                           ToolTip="Settings"
+                           ToolTip="Настройки"
                            Margin="8,0,0,0">
                     <ui:SymbolIcon Symbol="Settings24"/>
                 </ui:Button>
@@ -121,14 +121,14 @@
                         <ui:SymbolIcon Symbol="Edit24" 
                                        Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
                                        Margin="0,0,8,0"/>
-                        <TextBlock Text="Source Text" 
+                        <TextBlock Text="Исходный текст" 
                                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
                                    FontWeight="SemiBold"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <ui:Button Appearance="Transparent" 
                                    Command="{Binding PasteCommand}"
-                                   ToolTip="Paste from clipboard"
+                                   ToolTip="Вставить из буфера обмена"
                                    Padding="6,4">
                             <ui:SymbolIcon Symbol="ClipboardPaste24" FontSize="14"/>
                         </ui:Button>
@@ -148,7 +148,7 @@
                 
                 <!-- Character Count -->
                 <TextBlock Grid.Row="2" 
-                           Text="{Binding SourceCharacterCount, StringFormat='{}{0} characters'}"
+                           Text="{Binding SourceCharacterCount, StringFormat='{}{0} символов'}"
                            Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
                            FontSize="11"
                            HorizontalAlignment="Right"
@@ -168,7 +168,7 @@
                        Height="36">
                 <StackPanel Orientation="Horizontal">
                     <ui:SymbolIcon Symbol="Play24" Margin="0,0,8,0"/>
-                    <TextBlock Text="Translate" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    <TextBlock Text="Перевести" VerticalAlignment="Center" FontWeight="SemiBold"/>
                 </StackPanel>
             </ui:Button>
             <ui:Button Command="{Binding CancelCommand}"
@@ -178,7 +178,7 @@
                        Height="36">
                 <StackPanel Orientation="Horizontal">
                     <ui:SymbolIcon Symbol="Dismiss24" Margin="0,0,6,0"/>
-                    <TextBlock Text="Cancel" VerticalAlignment="Center"/>
+                    <TextBlock Text="Отмена" VerticalAlignment="Center"/>
                 </StackPanel>
             </ui:Button>
         </StackPanel>
@@ -202,7 +202,7 @@
                         <ui:SymbolIcon Symbol="Translate24" 
                                        Foreground="{ui:ThemeResource AccentTextFillColorPrimaryBrush}"
                                        Margin="0,0,8,0"/>
-                        <TextBlock Text="Translation" 
+                        <TextBlock Text="Перевод" 
                                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
                                    FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding SelectedTargetLanguage, StringFormat=' ({0})'}"
@@ -212,7 +212,7 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <ui:Button Appearance="Transparent" 
                                    Command="{Binding CopyTranslationCommand}"
-                                   ToolTip="Copy to clipboard"
+                                   ToolTip="Копировать в буфер обмена"
                                    Padding="6,4">
                             <ui:SymbolIcon Symbol="Copy24" FontSize="14"/>
                         </ui:Button>
@@ -237,7 +237,7 @@
                             <ui:ProgressRing IsIndeterminate="{Binding IsLoading}" 
                                            Width="40" 
                                            Height="40"/>
-                            <TextBlock Text="Translating..." 
+                            <TextBlock Text="Перевод..." 
                                        Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
                                        FontSize="13"
                                        Margin="0,12,0,0"/>
@@ -247,7 +247,7 @@
                 
                 <!-- Character Count -->
                 <TextBlock Grid.Row="2" 
-                           Text="{Binding TranslatedCharacterCount, StringFormat='{}{0} characters'}"
+                           Text="{Binding TranslatedCharacterCount, StringFormat='{}{0} символов'}"
                            Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
                            FontSize="11"
                            HorizontalAlignment="Right"
@@ -288,7 +288,7 @@
             <StackPanel Grid.Column="2" Orientation="Horizontal">
                 <ui:Button Command="{Binding ClearCommand}"
                            Appearance="Transparent"
-                           ToolTip="Clear all (Ctrl+Delete)"
+                           ToolTip="Очистить всё (Ctrl+Delete)"
                            Padding="8,6">
                     <ui:SymbolIcon Symbol="Delete24" FontSize="16"/>
                 </ui:Button>
@@ -303,10 +303,10 @@
                         Visibility="Visible">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Show" Click="TrayShow_Click"/>
-                    <MenuItem Header="Settings" Click="TraySettings_Click"/>
+                    <MenuItem Header="Показать" Click="TrayShow_Click"/>
+                    <MenuItem Header="Настройки" Click="TraySettings_Click"/>
                     <Separator/>
-                    <MenuItem Header="Exit" Click="TrayExit_Click"/>
+                    <MenuItem Header="Выход" Click="TrayExit_Click"/>
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>

@@ -29,13 +29,13 @@ public partial class MainViewModel : ObservableObject
     private bool _isLoading;
 
     [ObservableProperty]
-    private string _statusMessage = "Ready";
+    private string _statusMessage = "Готов";
 
     [ObservableProperty]
     private bool _hasError;
 
     [ObservableProperty]
-    private string _selectedTargetLanguage = "Russian";
+    private string _selectedTargetLanguage = "Русский";
 
     [ObservableProperty]
     private ObservableCollection<ProviderConfig> _providers = new();
@@ -43,7 +43,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private ProviderConfig? _selectedProvider;
 
-    public string[] AvailableLanguages { get; } = { "Russian", "English", "German", "French", "Spanish", "Chinese", "Japanese", "Korean" };
+    public string[] AvailableLanguages { get; } = { "Русский", "Английский", "Немецкий", "Французский", "Испанский", "Китайский", "Японский", "Корейский" };
 
     public int SourceCharacterCount => SourceText?.Length ?? 0;
     public int TranslatedCharacterCount => TranslatedText?.Length ?? 0;
@@ -105,7 +105,7 @@ public partial class MainViewModel : ObservableObject
         
         if (string.IsNullOrWhiteSpace(selectedText))
         {
-            ShowError("No text selected. Please select some text and try again.");
+            ShowError("Выделенный текст не найден. Выделите текст и попробуйте снова.");
             return;
         }
 
@@ -118,7 +118,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(SourceText))
         {
-            ShowError("Please enter text to translate.");
+            ShowError("Введите текст для перевода.");
             return;
         }
 
@@ -134,7 +134,7 @@ public partial class MainViewModel : ObservableObject
         
         IsLoading = true;
         HasError = false;
-        StatusMessage = "Translating...";
+        StatusMessage = "Перевод...";
         TranslatedText = string.Empty;
 
         try
@@ -153,22 +153,22 @@ public partial class MainViewModel : ObservableObject
             {
                 TranslatedText = result.TranslatedText;
                 StatusMessage = result.DetectedLanguage != null 
-                    ? $"Translated from {result.DetectedLanguage}"
-                    : "Translation complete";
+                    ? $"Переведено с {result.DetectedLanguage}"
+                    : "Перевод завершён";
             }
             else
             {
-                ShowError(result.ErrorMessage ?? "Translation failed");
+                ShowError(result.ErrorMessage ?? "Ошибка перевода");
             }
         }
         catch (TaskCanceledException)
         {
-            StatusMessage = "Cancelled";
+            StatusMessage = "Отменено";
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Translation error");
-            ShowError($"Error: {ex.Message}");
+            ShowError($"Ошибка: {ex.Message}");
         }
         finally
         {
@@ -182,7 +182,7 @@ public partial class MainViewModel : ObservableObject
         if (!string.IsNullOrEmpty(TranslatedText))
         {
             _clipboardService.SetText(TranslatedText);
-            StatusMessage = "Copied to clipboard";
+            StatusMessage = "Скопировано в буфер обмена";
         }
     }
 
@@ -221,7 +221,7 @@ public partial class MainViewModel : ObservableObject
         CancelCurrentOperation();
         SourceText = string.Empty;
         TranslatedText = string.Empty;
-        StatusMessage = "Ready";
+        StatusMessage = "Готов";
         HasError = false;
     }
 
@@ -229,7 +229,7 @@ public partial class MainViewModel : ObservableObject
     private void Cancel()
     {
         CancelCurrentOperation();
-        StatusMessage = "Cancelled";
+        StatusMessage = "Отменено";
         IsLoading = false;
     }
 
@@ -284,7 +284,7 @@ public partial class MainViewModel : ObservableObject
             var temp = SourceText;
             SourceText = TranslatedText;
             TranslatedText = temp;
-            StatusMessage = "Texts swapped";
+            StatusMessage = "Тексты поменяны местами";
         }
     }
 
@@ -295,7 +295,7 @@ public partial class MainViewModel : ObservableObject
         if (!string.IsNullOrEmpty(text))
         {
             SourceText = text;
-            StatusMessage = "Pasted from clipboard";
+            StatusMessage = "Вставлено из буфера обмена";
         }
     }
 }

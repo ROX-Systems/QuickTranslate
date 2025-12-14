@@ -18,7 +18,8 @@
             BorderThickness="1" 
             CornerRadius="8"
             Padding="16"
-            Margin="4">
+            Margin="4"
+            MouseLeftButtonDown="Border_MouseLeftButtonDown">
         <Border.Effect>
             <DropShadowEffect Color="Black" BlurRadius="20" Opacity="0.4" ShadowDepth="0"/>
         </Border.Effect>
@@ -37,7 +38,7 @@
                                    Foreground="{ui:ThemeResource AccentTextFillColorPrimaryBrush}"
                                    Margin="0,0,8,0"
                                    VerticalAlignment="Center"/>
-                    <TextBlock Text="Quick Translation" 
+                    <TextBlock Text="Быстрый перевод" 
                                Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}" 
                                FontWeight="SemiBold" 
                                FontSize="14"
@@ -47,7 +48,7 @@
                            Appearance="Transparent"
                            Click="Close_Click"
                            Padding="6"
-                           ToolTip="Close">
+                           ToolTip="Закрыть">
                     <ui:SymbolIcon Symbol="Dismiss16"/>
                 </ui:Button>
             </Grid>
@@ -77,7 +78,7 @@
                                  Width="32" 
                                  Height="32"
                                  Margin="0,0,0,8"/>
-                <TextBlock Text="Translating..." 
+                <TextBlock Text="Перевод..." 
                            Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
                            FontSize="13"/>
             </StackPanel>
@@ -112,6 +113,7 @@
                 <!-- Character count -->
                 <TextBlock Grid.Column="0"
                            x:Name="CharacterCountText"
+                           Text="{Binding SourceCharacterCount, StringFormat='{}{0} символов'}"
                            Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
                            FontSize="11"
                            VerticalAlignment="Center"/>
@@ -124,7 +126,7 @@
                            FontSize="12">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Copy24" Margin="0,0,6,0"/>
-                        <TextBlock Text="Copy"/>
+                        <TextBlock Text="Копировать"/>
                     </StackPanel>
                 </ui:Button>
             </Grid>
