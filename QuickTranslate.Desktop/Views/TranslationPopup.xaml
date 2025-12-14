@@ -1,0 +1,101 @@
+<Window x:Class="QuickTranslate.Desktop.Views.TranslationPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Translation"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        SizeToContent="WidthAndHeight"
+        MaxWidth="500"
+        MaxHeight="400"
+        Deactivated="Window_Deactivated">
+    
+    <Border Background="#2d2d2d" 
+            BorderBrush="#0078d4" 
+            BorderThickness="1" 
+            CornerRadius="8"
+            Padding="12"
+            Margin="4">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="15" Opacity="0.5" ShadowDepth="2"/>
+        </Border.Effect>
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,8">
+                <TextBlock Text="Translation" 
+                           Foreground="#0078d4" 
+                           FontWeight="SemiBold" 
+                           FontSize="12"/>
+                <Button Content="✕" 
+                        HorizontalAlignment="Right"
+                        Background="Transparent"
+                        Foreground="#888"
+                        BorderThickness="0"
+                        Padding="4,0"
+                        Cursor="Hand"
+                        Click="Close_Click"
+                        FontSize="14"/>
+            </Grid>
+            
+            <!-- Translation Text -->
+            <ScrollViewer Grid.Row="1" 
+                          x:Name="TranslationScrollViewer"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          MaxHeight="300"
+                          Visibility="Collapsed">
+                <TextBlock x:Name="TranslationText"
+                           Foreground="White"
+                           TextWrapping="Wrap"
+                           FontSize="14"
+                           LineHeight="20"/>
+            </ScrollViewer>
+            
+            <!-- Loading indicator -->
+            <StackPanel Grid.Row="1" 
+                        x:Name="LoadingPanel"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Visibility="Visible">
+                <TextBlock Text="Translating..." 
+                           Foreground="#888" 
+                           FontSize="12"/>
+            </StackPanel>
+            
+            <!-- Error message -->
+            <TextBlock Grid.Row="1"
+                       x:Name="ErrorText"
+                       Foreground="#ff6b6b"
+                       TextWrapping="Wrap"
+                       Visibility="Collapsed"/>
+            
+            <!-- Footer with copy button -->
+            <StackPanel Grid.Row="2" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Right"
+                        Margin="0,8,0,0">
+                <Button Content="📋 Copy" 
+                        Click="Copy_Click"
+                        Background="#3a3a3a"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Padding="8,4"
+                        Cursor="Hand"
+                        FontSize="11"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+    
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+</Window>

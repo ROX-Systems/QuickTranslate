@@ -96,18 +96,30 @@ public partial class MainWindow : Window
             case HotkeyAction.TranslateSelection:
                 // Capture selected text using the foreground window captured at hotkey press time
                 var selectedText = await _clipboardService.GetSelectedTextAsync(e.ForegroundWindow);
-                await Dispatcher.InvokeAsync(async () =>
+                if (!string.IsNullOrWhiteSpace(selectedText))
                 {
-                    ShowAndActivate();
-                    if (!string.IsNullOrWhiteSpace(selectedText))
+                    await Dispatcher.InvokeAsync(async () =>
                     {
-                        await _viewModel.TranslateTextAsync(selectedText);
-                    }
-                    else
-                    {
-                        _viewModel.ShowNoTextSelectedError();
-                    }
-                });
+                        var popup = new TranslationPopup();
+                        popup.SetLoading();
+                        popup.ShowAtCursor();
+                        
+                        var result = await _viewModel.TranslateForPopupAsync(selectedText);
+                        
+                        if (result.Success && result.Translation != null)
+                        {
+                            popup.SetTranslation(result.Translation);
+                        }
+                        else
+                        {
+                            popup.SetError(result.Error ?? "Translation failed");
+                        }
+                    });
+                }
+                else
+                {
+                    _logger.Warning("No text selected for translation");
+                }
                 break;
                 
             case HotkeyAction.ShowHide:

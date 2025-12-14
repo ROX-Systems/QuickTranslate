@@ -183,6 +183,35 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    public async Task<(bool Success, string? Translation, string? Error)> TranslateForPopupAsync(string text)
+    {
+        try
+        {
+            var settings = _settingsStore.Load();
+            var request = new TranslationRequest
+            {
+                SourceText = text,
+                TargetLanguage = settings.TargetLanguage
+            };
+
+            var result = await _translationService.TranslateAsync(request, CancellationToken.None);
+
+            if (result.Success)
+            {
+                return (true, result.TranslatedText, null);
+            }
+            else
+            {
+                return (false, null, result.ErrorMessage ?? "Translation failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Popup translation error");
+            return (false, null, ex.Message);
+        }
+    }
+
     [RelayCommand]
     private void Clear()
     {

@@ -30,6 +30,7 @@ public partial class App : Application
         Log.Information("QuickTranslate starting...");
 
         var mainWindow = GetService<MainWindow>();
+        MainWindow = mainWindow;
         mainWindow.Show();
     }
 

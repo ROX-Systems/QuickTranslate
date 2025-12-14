@@ -45,3 +45,5 @@ D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Deskt
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\QuickTranslate.Desktop.genruntimeconfig.cache
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\ref\QuickTranslate.Desktop.dll
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\QuickTranslate.Desktop.sourcelink.json
+D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\Views\TranslationPopup.baml
+D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\Views\TranslationPopup.g.cs
