@@ -180,6 +180,19 @@
                                   Width="150"/>
                     </StackPanel>
                     
+                    <!-- Color Theme Selection -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="{Binding [ColorTheme], Source={x:Static local:Loc.Instance}}" 
+                                   Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
+                                   VerticalAlignment="Center" 
+                                   Margin="0,0,12,0"/>
+                        <ComboBox ItemsSource="{Binding AvailableColorThemes}"
+                                  SelectedValue="{Binding SelectedColorTheme, Mode=TwoWay}"
+                                  SelectedValuePath="Theme"
+                                  DisplayMemberPath="DisplayName"
+                                  Width="180"/>
+                    </StackPanel>
+                    
                     <!-- Hotkeys -->
                     <TextBlock Text="{Binding [KeyboardShortcuts], Source={x:Static local:Loc.Instance}}" 
                                FontSize="13" 

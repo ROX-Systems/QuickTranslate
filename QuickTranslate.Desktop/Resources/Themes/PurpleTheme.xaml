@@ -1,0 +1,21 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <!-- Purple Nebula Theme - Premium, Innovative -->
+    <Color x:Key="ThemeAccentColor">#8B5CF6</Color>
+    <Color x:Key="ThemeSecondaryColor">#A78BFA</Color>
+    <Color x:Key="ThemeSuccessColor">#22C55E</Color>
+    <Color x:Key="ThemeErrorColor">#F43F5E</Color>
+    <Color x:Key="ThemeBackgroundColor">#0C0A1D</Color>
+    <Color x:Key="ThemeCardColor">#1C1731</Color>
+    <Color x:Key="ThemeBorderColor">#2E2750</Color>
+    
+    <SolidColorBrush x:Key="ThemeAccentBrush" Color="{StaticResource ThemeAccentColor}"/>
+    <SolidColorBrush x:Key="ThemeSecondaryBrush" Color="{StaticResource ThemeSecondaryColor}"/>
+    <SolidColorBrush x:Key="ThemeSuccessBrush" Color="{StaticResource ThemeSuccessColor}"/>
+    <SolidColorBrush x:Key="ThemeErrorBrush" Color="{StaticResource ThemeErrorColor}"/>
+    <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="{StaticResource ThemeBackgroundColor}"/>
+    <SolidColorBrush x:Key="ThemeCardBrush" Color="{StaticResource ThemeCardColor}"/>
+    <SolidColorBrush x:Key="ThemeBorderBrush" Color="{StaticResource ThemeBorderColor}"/>
+    
+</ResourceDictionary>

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using QuickTranslate.Core.Interfaces;
 using QuickTranslate.Core.Models;
+using QuickTranslate.Desktop.Services;
 using Serilog;
 
 namespace QuickTranslate.Desktop.ViewModels;
@@ -48,11 +49,19 @@ public partial class SettingsViewModel : ObservableObject
     private string _selectedInterfaceLanguage = "ru";
 
     [ObservableProperty]
+    private AppTheme _selectedColorTheme = AppTheme.OceanBlue;
+
+    [ObservableProperty]
     private string _statusMessage = string.Empty;
 
     partial void OnSelectedInterfaceLanguageChanged(string value)
     {
         Services.LocalizationService.Instance.SetCulture(value);
+    }
+
+    partial void OnSelectedColorThemeChanged(AppTheme value)
+    {
+        ThemeService.Instance.SetTheme(value);
     }
 
     [ObservableProperty]
@@ -79,6 +88,8 @@ public partial class SettingsViewModel : ObservableObject
         new() { Code = "en", Name = "English" }
     };
 
+    public List<ThemeInfo> AvailableColorThemes { get; } = ThemeService.AvailableThemes.Values.ToList();
+
     public event EventHandler? SettingsSaved;
     public event EventHandler? CloseRequested;
 
@@ -98,6 +109,11 @@ public partial class SettingsViewModel : ObservableObject
         Providers = new ObservableCollection<ProviderConfig>(_appSettings.Providers);
         TargetLanguage = _appSettings.TargetLanguage;
         SelectedInterfaceLanguage = _appSettings.InterfaceLanguage ?? "ru";
+        
+        if (!string.IsNullOrEmpty(_appSettings.ColorTheme) && Enum.TryParse<AppTheme>(_appSettings.ColorTheme, out var theme))
+        {
+            SelectedColorTheme = theme;
+        }
 
         _translateSelectionHotkey = _appSettings.TranslateSelectionHotkey;
         _showHideHotkey = _appSettings.ShowHideHotkey;
@@ -284,6 +300,7 @@ public partial class SettingsViewModel : ObservableObject
             _appSettings.Providers = Providers.ToList();
             _appSettings.TargetLanguage = TargetLanguage;
             _appSettings.InterfaceLanguage = SelectedInterfaceLanguage;
+            _appSettings.ColorTheme = SelectedColorTheme.ToString();
             _appSettings.TranslateSelectionHotkey = _translateSelectionHotkey;
             _appSettings.ShowHideHotkey = _showHideHotkey;
             

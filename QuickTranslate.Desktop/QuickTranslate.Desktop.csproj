@@ -38,5 +38,8 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="Resources\Themes\*.xaml" />
+  </ItemGroup>
   
 </Project>

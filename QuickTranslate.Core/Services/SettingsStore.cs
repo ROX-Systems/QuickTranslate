@@ -43,6 +43,8 @@ public class SettingsStore : ISettingsStore
             {
                 ActiveProviderId = stored.ActiveProviderId,
                 TargetLanguage = stored.TargetLanguage ?? "Russian",
+                InterfaceLanguage = stored.InterfaceLanguage,
+                ColorTheme = stored.ColorTheme,
                 Providers = stored.Providers?.Select(sp => new ProviderConfig
                 {
                     Id = sp.Id ?? Guid.NewGuid().ToString(),
@@ -85,6 +87,8 @@ public class SettingsStore : ISettingsStore
             {
                 ActiveProviderId = settings.ActiveProviderId,
                 TargetLanguage = settings.TargetLanguage,
+                InterfaceLanguage = settings.InterfaceLanguage,
+                ColorTheme = settings.ColorTheme,
                 Providers = settings.Providers.Select(p => new StoredProviderConfig
                 {
                     Id = p.Id,
@@ -182,6 +186,8 @@ public class SettingsStore : ISettingsStore
     {
         public string? ActiveProviderId { get; set; }
         public string? TargetLanguage { get; set; }
+        public string? InterfaceLanguage { get; set; }
+        public string? ColorTheme { get; set; }
         public List<StoredProviderConfig>? Providers { get; set; }
         public StoredHotkeyConfig? TranslateSelectionHotkey { get; set; }
         public StoredHotkeyConfig? ShowHideHotkey { get; set; }

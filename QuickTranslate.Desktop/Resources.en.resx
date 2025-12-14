@@ -219,4 +219,9 @@
   <data name="Error" xml:space="preserve">
     <value>Error: {0}</value>
   </data>
+  
+  <!-- Theme -->
+  <data name="ColorTheme" xml:space="preserve">
+    <value>Color Theme:</value>
+  </data>
 </root>

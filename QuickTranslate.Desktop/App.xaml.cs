@@ -27,6 +27,8 @@ public partial class App : Application
         ConfigureLogging();
         ConfigureServices();
         
+        ThemeService.Instance.Initialize();
+        
         Log.Information("QuickTranslate starting...");
 
         var mainWindow = GetService<MainWindow>();

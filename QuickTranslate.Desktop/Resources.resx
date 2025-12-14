@@ -219,4 +219,9 @@
   <data name="Error" xml:space="preserve">
     <value>Ошибка: {0}</value>
   </data>
+  
+  <!-- Theme -->
+  <data name="ColorTheme" xml:space="preserve">
+    <value>Цветовая тема:</value>
+  </data>
 </root>

@@ -219,4 +219,9 @@
   <data name="Error" xml:space="preserve">
     <value>Рæдыд: {0}</value>
   </data>
+  
+  <!-- Theme -->
+  <data name="ColorTheme" xml:space="preserve">
+    <value>Хуызы темæ:</value>
+  </data>
 </root>
