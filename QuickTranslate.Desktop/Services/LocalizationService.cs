@@ -51,6 +51,7 @@ namespace QuickTranslate.Desktop.Services
             return systemLanguage switch
             {
                 "ru" => new CultureInfo("ru"),
+                "os" => new CultureInfo("os"),
                 "en" => new CultureInfo("en"),
                 _ => new CultureInfo("en") // Default to English for unsupported languages
             };

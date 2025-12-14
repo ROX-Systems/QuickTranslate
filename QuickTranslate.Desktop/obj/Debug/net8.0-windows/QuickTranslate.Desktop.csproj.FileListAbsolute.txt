@@ -73,3 +73,7 @@ D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Deskt
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\QuickTranslate.Desktop.csproj.GenerateResource.cache
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\en\QuickTranslate.Desktop.resources.cs
 D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\en\QuickTranslate.Desktop.resources.dll
+D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\bin\Debug\net8.0-windows\os\QuickTranslate.Desktop.resources.dll
+D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\QuickTranslate.Desktop.Resources.os.resources
+D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\os\QuickTranslate.Desktop.resources.cs
+D:\projects\CascadeProjects\windsurf-project\QuickTranslate\QuickTranslate.Desktop\obj\Debug\net8.0-windows\os\QuickTranslate.Desktop.resources.dll

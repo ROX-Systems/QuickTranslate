@@ -75,6 +75,7 @@ public partial class SettingsViewModel : ObservableObject
     public ObservableCollection<LanguageOption> AvailableInterfaceLanguages { get; } = new()
     {
         new() { Code = "ru", Name = "Русский" },
+        new() { Code = "os", Name = "Ирон" },
         new() { Code = "en", Name = "English" }
     };
 
