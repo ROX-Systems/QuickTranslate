@@ -96,3 +96,36 @@ installer/
 
 # Application specific
 !.gitkeep
+
+# WPF/WinUI specific
+*.baml
+*.g.cs
+*.g.i.cs
+*.generated.cs
+
+# Strong name keys
+*.snk
+
+# Data files
+*.db
+*.sqlite
+*.sqlite3
+
+# Application data (as mentioned in README)
+# %LOCALAPPDATA%\QuickTranslate\ - handled by OS, but just in case
+settings.json
+logs/
+
+# IDE specific files not covered above
+*.csproj.user
+*.csproj.vspscc
+*.vspscc
+*.vssscc
+
+# Backup files
+*.bak
+*.backup
+
+# Generated documentation
+*.docx
+*.pdf
