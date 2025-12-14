@@ -19,6 +19,7 @@ public class AppSettings
     public List<ProviderConfig> Providers { get; set; } = new();
     public string? ActiveProviderId { get; set; }
     public string TargetLanguage { get; set; } = "Russian";
+    public string? InterfaceLanguage { get; set; } = "ru";
     
     private HotkeyConfig _translateSelectionHotkey = new(0x0006, 0x54); // Ctrl+Shift+T
     private HotkeyConfig _showHideHotkey = new(0x0006, 0x4F); // Ctrl+Shift+O

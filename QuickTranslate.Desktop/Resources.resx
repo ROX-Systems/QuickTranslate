@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- MainWindow -->
+  <data name="Source" xml:space="preserve">
+    <value>Источник</value>
+  </data>
+  <data name="AutoDetect" xml:space="preserve">
+    <value>Автоопределение</value>
+  </data>
+  <data name="TranslateTo" xml:space="preserve">
+    <value>Перевести на</value>
+  </data>
+  <data name="SwapSourceAndTranslation" xml:space="preserve">
+    <value>Поменять местами</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="SourceText" xml:space="preserve">
+    <value>Исходный текст</value>
+  </data>
+  <data name="PasteFromClipboard" xml:space="preserve">
+    <value>Вставить из буфера обмена</value>
+  </data>
+  <data name="Characters" xml:space="preserve">
+    <value>символов</value>
+  </data>
+  <data name="Translation" xml:space="preserve">
+    <value>Перевод</value>
+  </data>
+  <data name="CopyToClipboard" xml:space="preserve">
+    <value>Копировать в буфер обмена</value>
+  </data>
+  <data name="Translating" xml:space="preserve">
+    <value>Перевод...</value>
+  </data>
+  <data name="Translate" xml:space="preserve">
+    <value>Перевести</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="ClearAll" xml:space="preserve">
+    <value>Очистить всё (Ctrl+Delete)</value>
+  </data>
+  <data name="Show" xml:space="preserve">
+    <value>Показать</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Выход</value>
+  </data>
+  
+  <!-- TranslationPopup -->
+  <data name="QuickTranslation" xml:space="preserve">
+    <value>Быстрый перевод</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Закрыть</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Копировать</value>
+  </data>
+  
+  <!-- SettingsWindow -->
+  <data name="SettingsTitle" xml:space="preserve">
+    <value>Настройки - QuickTranslate</value>
+  </data>
+  <data name="AIProviders" xml:space="preserve">
+    <value>Поставщики AI</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Добавить</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="ProviderConfiguration" xml:space="preserve">
+    <value>Настройки провайдера</value>
+  </data>
+  <data name="ProviderName" xml:space="preserve">
+    <value>Имя провайдера</value>
+  </data>
+  <data name="BaseUrl" xml:space="preserve">
+    <value>Базовый URL</value>
+  </data>
+  <data name="ApiKey" xml:space="preserve">
+    <value>Ключ API</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>Модель</value>
+  </data>
+  <data name="Temperature" xml:space="preserve">
+    <value>Температура (0-2)</value>
+  </data>
+  <data name="MaxTokens" xml:space="preserve">
+    <value>Максимум токенов</value>
+  </data>
+  <data name="Timeout" xml:space="preserve">
+    <value>Таймаут (секунды)</value>
+  </data>
+  <data name="TestConnection" xml:space="preserve">
+    <value>Проверить соединение</value>
+  </data>
+  <data name="GlobalSettings" xml:space="preserve">
+    <value>Общие настройки</value>
+  </data>
+  <data name="DefaultTargetLanguage" xml:space="preserve">
+    <value>Язык перевода по умолчанию:</value>
+  </data>
+  <data name="KeyboardShortcuts" xml:space="preserve">
+    <value>Горячие клавиши</value>
+  </data>
+  <data name="TranslateSelection" xml:space="preserve">
+    <value>Перевести выделенное:</value>
+  </data>
+  <data name="ShowHideWindow" xml:space="preserve">
+    <value>Показать/Скрыть окно:</value>
+  </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Сбросить</value>
+  </data>
+  <data name="SaveAll" xml:space="preserve">
+    <value>Сохранить всё</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Язык интерфейса:</value>
+  </data>
+  
+  <!-- Status Messages -->
+  <data name="Ready" xml:space="preserve">
+    <value>Готов</value>
+  </data>
+  <data name="TranslatedFrom" xml:space="preserve">
+    <value>Переведено с {0}</value>
+  </data>
+  <data name="TranslationComplete" xml:space="preserve">
+    <value>Перевод завершён</value>
+  </data>
+  <data name="Cancelled" xml:space="preserve">
+    <value>Отменено</value>
+  </data>
+  <data name="CopiedToClipboard" xml:space="preserve">
+    <value>Скопировано в буфер обмена</value>
+  </data>
+  <data name="TextsSwapped" xml:space="preserve">
+    <value>Тексты поменяны местами</value>
+  </data>
+  <data name="PastedFromClipboard" xml:space="preserve">
+    <value>Вставлено из буфера обмена</value>
+  </data>
+  <data name="NoTextSelected" xml:space="preserve">
+    <value>Выделенный текст не найден. Выделите текст и попробуйте снова.</value>
+  </data>
+  <data name="EnterTextToTranslate" xml:space="preserve">
+    <value>Введите текст для перевода.</value>
+  </data>
+  <data name="TranslationFailed" xml:space="preserve">
+    <value>Ошибка перевода</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Ошибка: {0}</value>
+  </data>
+</root>

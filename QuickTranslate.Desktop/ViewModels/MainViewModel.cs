@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using QuickTranslate.Core.Interfaces;
 using QuickTranslate.Core.Models;
+using QuickTranslate.Desktop.Services;
 using QuickTranslate.Desktop.Services.Interfaces;
 using Serilog;
 
@@ -29,13 +30,13 @@ public partial class MainViewModel : ObservableObject
     private bool _isLoading;
 
     [ObservableProperty]
-    private string _statusMessage = "Готов";
+    private string _statusMessage = LocalizationService.Instance["Ready"];
 
     [ObservableProperty]
     private bool _hasError;
 
     [ObservableProperty]
-    private string _selectedTargetLanguage = "Русский";
+    private string _selectedTargetLanguage = "Russian";
 
     [ObservableProperty]
     private ObservableCollection<ProviderConfig> _providers = new();
@@ -43,10 +44,13 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private ProviderConfig? _selectedProvider;
 
-    public string[] AvailableLanguages { get; } = { "Русский", "Английский", "Немецкий", "Французский", "Испанский", "Китайский", "Японский", "Корейский" };
+    public string[] AvailableLanguages { get; } = { "Russian", "English", "German", "French", "Spanish", "Chinese", "Japanese", "Korean" };
 
     public int SourceCharacterCount => SourceText?.Length ?? 0;
     public int TranslatedCharacterCount => TranslatedText?.Length ?? 0;
+    
+    public string SourceCharacterCountText => $"{SourceCharacterCount} {LocalizationService.Instance["Characters"]}";
+    public string TranslatedCharacterCountText => $"{TranslatedCharacterCount} {LocalizationService.Instance["Characters"]}";
 
     public MainViewModel(
         ITranslationService translationService,
@@ -105,7 +109,7 @@ public partial class MainViewModel : ObservableObject
         
         if (string.IsNullOrWhiteSpace(selectedText))
         {
-            ShowError("Выделенный текст не найден. Выделите текст и попробуйте снова.");
+            ShowError(LocalizationService.Instance["NoTextSelected"]);
             return;
         }
 
@@ -118,7 +122,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(SourceText))
         {
-            ShowError("Введите текст для перевода.");
+            ShowError(LocalizationService.Instance["EnterTextToTranslate"]);
             return;
         }
 
@@ -134,7 +138,7 @@ public partial class MainViewModel : ObservableObject
         
         IsLoading = true;
         HasError = false;
-        StatusMessage = "Перевод...";
+        StatusMessage = LocalizationService.Instance["Translating"];
         TranslatedText = string.Empty;
 
         try
@@ -153,22 +157,22 @@ public partial class MainViewModel : ObservableObject
             {
                 TranslatedText = result.TranslatedText;
                 StatusMessage = result.DetectedLanguage != null 
-                    ? $"Переведено с {result.DetectedLanguage}"
-                    : "Перевод завершён";
+                    ? string.Format(LocalizationService.Instance["TranslatedFrom"], result.DetectedLanguage)
+                    : LocalizationService.Instance["TranslationComplete"];
             }
             else
             {
-                ShowError(result.ErrorMessage ?? "Ошибка перевода");
+                ShowError(result.ErrorMessage ?? LocalizationService.Instance["TranslationFailed"]);
             }
         }
         catch (TaskCanceledException)
         {
-            StatusMessage = "Отменено";
+            StatusMessage = LocalizationService.Instance["Cancelled"];
         }
         catch (Exception ex)
         {
             _logger.Error(ex, "Translation error");
-            ShowError($"Ошибка: {ex.Message}");
+            ShowError(string.Format(LocalizationService.Instance["Error"], ex.Message));
         }
         finally
         {
@@ -182,7 +186,7 @@ public partial class MainViewModel : ObservableObject
         if (!string.IsNullOrEmpty(TranslatedText))
         {
             _clipboardService.SetText(TranslatedText);
-            StatusMessage = "Скопировано в буфер обмена";
+            StatusMessage = LocalizationService.Instance["CopiedToClipboard"];
         }
     }
 
@@ -205,7 +209,7 @@ public partial class MainViewModel : ObservableObject
             }
             else
             {
-                return (false, null, result.ErrorMessage ?? "Translation failed");
+                return (false, null, result.ErrorMessage ?? LocalizationService.Instance["TranslationFailed"]);
             }
         }
         catch (Exception ex)
@@ -221,7 +225,7 @@ public partial class MainViewModel : ObservableObject
         CancelCurrentOperation();
         SourceText = string.Empty;
         TranslatedText = string.Empty;
-        StatusMessage = "Готов";
+        StatusMessage = LocalizationService.Instance["Ready"];
         HasError = false;
     }
 
@@ -229,7 +233,7 @@ public partial class MainViewModel : ObservableObject
     private void Cancel()
     {
         CancelCurrentOperation();
-        StatusMessage = "Отменено";
+        StatusMessage = LocalizationService.Instance["Cancelled"];
         IsLoading = false;
     }
 
@@ -256,7 +260,7 @@ public partial class MainViewModel : ObservableObject
 
     public void ShowNoTextSelectedError()
     {
-        ShowError("No text selected. Please select some text and try again.");
+        ShowError(LocalizationService.Instance["NoTextSelected"]);
     }
 
     partial void OnSelectedTargetLanguageChanged(string value)
@@ -284,7 +288,7 @@ public partial class MainViewModel : ObservableObject
             var temp = SourceText;
             SourceText = TranslatedText;
             TranslatedText = temp;
-            StatusMessage = "Тексты поменяны местами";
+            StatusMessage = LocalizationService.Instance["TextsSwapped"];
         }
     }
 
@@ -295,7 +299,7 @@ public partial class MainViewModel : ObservableObject
         if (!string.IsNullOrEmpty(text))
         {
             SourceText = text;
-            StatusMessage = "Вставлено из буфера обмена";
+            StatusMessage = LocalizationService.Instance["PastedFromClipboard"];
         }
     }
 }

@@ -3,9 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:QuickTranslate.Desktop.Services"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
-        Title="Настройки - QuickTranslate" 
+        Title="{Binding [SettingsTitle], Source={x:Static local:Loc.Instance}}" 
         Height="650" 
         Width="750"
         WindowStartupLocation="CenterOwner"
@@ -40,7 +41,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <ui:TitleBar Grid.Row="0" Title="Настройки"/>
+        <ui:TitleBar Grid.Row="0" Title="{Binding [Settings], Source={x:Static local:Loc.Instance}}"/>
         
         <Grid Grid.Row="1" Margin="16,8,16,16">
             <Grid.ColumnDefinitions>
@@ -57,24 +58,24 @@
 
             <!-- Left Panel: Provider List -->
             <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,0,12">
-                <TextBlock Text="Поставщики AI" Style="{StaticResource SectionHeader}"/>
+                <TextBlock Text="{Binding [AIProviders], Source={x:Static local:Loc.Instance}}" Style="{StaticResource SectionHeader}"/>
                 <StackPanel Orientation="Horizontal">
                     <ui:Button Command="{Binding AddProviderCommand}" Appearance="Secondary" Margin="0,0,4,0">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Add24" Margin="0,0,4,0"/>
-                            <TextBlock Text="Добавить" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding [Add], Source={x:Static local:Loc.Instance}}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ui:Button>
                     <ui:Button Command="{Binding DuplicateProviderCommand}" Appearance="Secondary" Margin="0,0,4,0">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Copy24" Margin="0,0,4,0"/>
-                            <TextBlock Text="Копировать" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding [Copy], Source={x:Static local:Loc.Instance}}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ui:Button>
                     <ui:Button Command="{Binding DeleteProviderCommand}" Appearance="Secondary">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Delete24" Margin="0,0,4,0"/>
-                            <TextBlock Text="Удалить" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding [Delete], Source={x:Static local:Loc.Instance}}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ui:Button>
                 </StackPanel>
@@ -88,28 +89,28 @@
 
             <!-- Right Panel: Provider Settings -->
             <TextBlock Grid.Column="2" Grid.Row="0" 
-                       Text="Настройки провайдера" 
+                       Text="{Binding [ProviderConfiguration], Source={x:Static local:Loc.Instance}}" 
                        Style="{StaticResource SectionHeader}"/>
 
             <ScrollViewer Grid.Column="2" Grid.Row="1" VerticalScrollBarVisibility="Auto">
                 <StackPanel IsEnabled="{Binding HasSelectedProvider}">
                     <!-- Provider Name -->
-                    <TextBlock Text="Имя провайдера" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="{Binding [ProviderName], Source={x:Static local:Loc.Instance}}" Style="{StaticResource FieldLabel}"/>
                     <TextBox Text="{Binding ProviderName, UpdateSourceTrigger=PropertyChanged}" 
                              Margin="0,0,0,12"/>
 
                     <!-- Base URL -->
-                    <TextBlock Text="Базовый URL" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="{Binding [BaseUrl], Source={x:Static local:Loc.Instance}}" Style="{StaticResource FieldLabel}"/>
                     <TextBox Text="{Binding BaseUrl, UpdateSourceTrigger=PropertyChanged}" 
                              Margin="0,0,0,12"/>
 
                     <!-- API Key -->
-                    <TextBlock Text="Ключ API" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="{Binding [ApiKey], Source={x:Static local:Loc.Instance}}" Style="{StaticResource FieldLabel}"/>
                     <PasswordBox x:Name="ApiKeyBox" 
                                  Margin="0,0,0,12"/>
 
                     <!-- Model -->
-                    <TextBlock Text="Модель" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="{Binding [Model], Source={x:Static local:Loc.Instance}}" Style="{StaticResource FieldLabel}"/>
                     <TextBox Text="{Binding Model, UpdateSourceTrigger=PropertyChanged}" 
                              Margin="0,0,0,12"/>
 
@@ -122,18 +123,18 @@
                         </Grid.ColumnDefinitions>
                         
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Температура (0-2)" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="{Binding [Temperature], Source={x:Static local:Loc.Instance}}" Style="{StaticResource FieldLabel}"/>
                             <TextBox Text="{Binding Temperature, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                         
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="Максимум токенов" Style="{StaticResource FieldLabel}"/>
+                            <TextBlock Text="{Binding [MaxTokens], Source={x:Static local:Loc.Instance}}" Style="{StaticResource FieldLabel}"/>
                             <TextBox Text="{Binding MaxTokens, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </Grid>
 
                     <!-- Timeout -->
-                    <TextBlock Text="Таймаут (секунды)" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="{Binding [Timeout], Source={x:Static local:Loc.Instance}}" Style="{StaticResource FieldLabel}"/>
                     <TextBox Text="{Binding TimeoutSeconds, UpdateSourceTrigger=PropertyChanged}" 
                              Width="120"
                              HorizontalAlignment="Left"
@@ -145,7 +146,7 @@
                                IsEnabled="{Binding IsTesting, Converter={StaticResource InverseBoolConverter}}">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Link24" Margin="0,0,6,0"/>
-                            <TextBlock Text="Проверить соединение" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding [TestConnection], Source={x:Static local:Loc.Instance}}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ui:Button>
                 </StackPanel>
@@ -154,9 +155,9 @@
             <!-- Global Settings -->
             <ui:Card Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Margin="0,12,0,0" Padding="16">
                 <StackPanel>
-                    <TextBlock Text="Общие настройки" Style="{StaticResource SectionHeader}"/>
+                    <TextBlock Text="{Binding [GlobalSettings], Source={x:Static local:Loc.Instance}}" Style="{StaticResource SectionHeader}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <TextBlock Text="Язык перевода по умолчанию:" 
+                        <TextBlock Text="{Binding [DefaultTargetLanguage], Source={x:Static local:Loc.Instance}}" 
                                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
                                    VerticalAlignment="Center" 
                                    Margin="0,0,12,0"/>
@@ -165,8 +166,21 @@
                                   Width="150"/>
                     </StackPanel>
                     
+                    <!-- Language Selection -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text="{Binding [Language], Source={x:Static local:Loc.Instance}}" 
+                                   Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
+                                   VerticalAlignment="Center" 
+                                   Margin="0,0,12,0"/>
+                        <ComboBox ItemsSource="{Binding AvailableInterfaceLanguages}"
+                                  SelectedValue="{Binding SelectedInterfaceLanguage}"
+                                  SelectedValuePath="Code"
+                                  DisplayMemberPath="Name"
+                                  Width="150"/>
+                    </StackPanel>
+                    
                     <!-- Hotkeys -->
-                    <TextBlock Text="Горячие клавиши" 
+                    <TextBlock Text="{Binding [KeyboardShortcuts], Source={x:Static local:Loc.Instance}}" 
                                FontSize="13" 
                                FontWeight="SemiBold" 
                                Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
@@ -183,7 +197,7 @@
                         </Grid.RowDefinitions>
                         
                         <TextBlock Grid.Row="0" Grid.Column="0" 
-                                   Text="Перевести выделенное:" 
+                                   Text="{Binding [TranslateSelection], Source={x:Static local:Loc.Instance}}" 
                                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
                                    VerticalAlignment="Center"/>
                         <TextBox Grid.Row="0" Grid.Column="1" 
@@ -202,12 +216,12 @@
                                    Margin="0,0,0,12">
                             <StackPanel Orientation="Horizontal">
                                 <ui:SymbolIcon Symbol="ArrowReset24" Margin="0,0,4,0"/>
-                                <TextBlock Text="Сбросить" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding [Reset], Source={x:Static local:Loc.Instance}}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ui:Button>
                         
                         <TextBlock Grid.Row="1" Grid.Column="0" 
-                                   Text="Показать/Скрыть окно:" 
+                                   Text="{Binding [ShowHideWindow], Source={x:Static local:Loc.Instance}}" 
                                    Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
                                    VerticalAlignment="Center"/>
                         <TextBox Grid.Row="1" Grid.Column="1" 
@@ -225,7 +239,7 @@
                                    Tag="ShowHide">
                             <StackPanel Orientation="Horizontal">
                                 <ui:SymbolIcon Symbol="ArrowReset24" Margin="0,0,4,0"/>
-                                <TextBlock Text="Сбросить" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding [Reset], Source={x:Static local:Loc.Instance}}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ui:Button>
                     </Grid>
@@ -252,7 +266,7 @@
                            Margin="0,0,8,0">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Dismiss24" Margin="0,0,6,0"/>
-                        <TextBlock Text="Отмена" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding [Cancel], Source={x:Static local:Loc.Instance}}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </ui:Button>
                 
@@ -261,7 +275,7 @@
                            Command="{Binding SaveCommand}">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Save24" Margin="0,0,6,0"/>
-                        <TextBlock Text="Сохранить всё" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding [SaveAll], Source={x:Static local:Loc.Instance}}" VerticalAlignment="Center" FontWeight="SemiBold"/>
                     </StackPanel>
                 </ui:Button>
             </Grid>

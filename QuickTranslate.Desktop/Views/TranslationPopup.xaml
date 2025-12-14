@@ -1,6 +1,7 @@
 <Window x:Class="QuickTranslate.Desktop.Views.TranslationPopup"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:QuickTranslate.Desktop.Services"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="Translation"
         WindowStyle="None"
@@ -38,7 +39,7 @@
                                    Foreground="{ui:ThemeResource AccentTextFillColorPrimaryBrush}"
                                    Margin="0,0,8,0"
                                    VerticalAlignment="Center"/>
-                    <TextBlock Text="Быстрый перевод" 
+                    <TextBlock Text="{Binding [QuickTranslation], Source={x:Static local:Loc.Instance}}" 
                                Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}" 
                                FontWeight="SemiBold" 
                                FontSize="14"
@@ -48,7 +49,7 @@
                            Appearance="Transparent"
                            Click="Close_Click"
                            Padding="6"
-                           ToolTip="Закрыть">
+                           ToolTip="{Binding [Close], Source={x:Static local:Loc.Instance}}">
                     <ui:SymbolIcon Symbol="Dismiss16"/>
                 </ui:Button>
             </Grid>
@@ -78,7 +79,7 @@
                                  Width="32" 
                                  Height="32"
                                  Margin="0,0,0,8"/>
-                <TextBlock Text="Перевод..." 
+                <TextBlock Text="{Binding [Translating], Source={x:Static local:Loc.Instance}}" 
                            Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
                            FontSize="13"/>
             </StackPanel>
@@ -113,7 +114,7 @@
                 <!-- Character count -->
                 <TextBlock Grid.Column="0"
                            x:Name="CharacterCountText"
-                           Text="{Binding SourceCharacterCount, StringFormat='{}{0} символов'}"
+                           Text="{Binding SourceCharacterCountText}"
                            Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
                            FontSize="11"
                            VerticalAlignment="Center"/>
@@ -126,7 +127,7 @@
                            FontSize="12">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="Copy24" Margin="0,0,6,0"/>
-                        <TextBlock Text="Копировать"/>
+                        <TextBlock Text="{Binding [Copy], Source={x:Static local:Loc.Instance}}"/>
                     </StackPanel>
                 </ui:Button>
             </Grid>

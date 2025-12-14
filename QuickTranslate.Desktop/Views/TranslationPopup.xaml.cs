@@ -23,7 +23,7 @@ public partial class TranslationPopup : Window
         LoadingPanel.Visibility = Visibility.Collapsed;
         ErrorBorder.Visibility = Visibility.Collapsed;
         TranslationScrollViewer.Visibility = Visibility.Visible;
-        CharacterCountText.Text = $"{text.Length} символов";
+        CharacterCountText.Text = $"{text.Length} {Services.LocalizationService.Instance["Characters"]}";
     }
 
     public void SetError(string error)

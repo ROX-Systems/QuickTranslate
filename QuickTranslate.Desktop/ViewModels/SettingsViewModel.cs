@@ -45,7 +45,15 @@ public partial class SettingsViewModel : ObservableObject
     private string _targetLanguage = "Russian";
 
     [ObservableProperty]
+    private string _selectedInterfaceLanguage = "ru";
+
+    [ObservableProperty]
     private string _statusMessage = string.Empty;
+
+    partial void OnSelectedInterfaceLanguageChanged(string value)
+    {
+        Services.LocalizationService.Instance.SetCulture(value);
+    }
 
     [ObservableProperty]
     private bool _isTesting;
@@ -63,6 +71,12 @@ public partial class SettingsViewModel : ObservableObject
     private HotkeyConfig _showHideHotkey = new(0x0006, 0x4F);
 
     public string[] AvailableLanguages { get; } = { "Russian", "English", "German", "French", "Spanish", "Chinese", "Japanese", "Korean" };
+
+    public ObservableCollection<LanguageOption> AvailableInterfaceLanguages { get; } = new()
+    {
+        new() { Code = "ru", Name = "Русский" },
+        new() { Code = "en", Name = "English" }
+    };
 
     public event EventHandler? SettingsSaved;
     public event EventHandler? CloseRequested;
@@ -82,6 +96,7 @@ public partial class SettingsViewModel : ObservableObject
         
         Providers = new ObservableCollection<ProviderConfig>(_appSettings.Providers);
         TargetLanguage = _appSettings.TargetLanguage;
+        SelectedInterfaceLanguage = _appSettings.InterfaceLanguage ?? "ru";
 
         _translateSelectionHotkey = _appSettings.TranslateSelectionHotkey;
         _showHideHotkey = _appSettings.ShowHideHotkey;
@@ -267,6 +282,7 @@ public partial class SettingsViewModel : ObservableObject
 
             _appSettings.Providers = Providers.ToList();
             _appSettings.TargetLanguage = TargetLanguage;
+            _appSettings.InterfaceLanguage = SelectedInterfaceLanguage;
             _appSettings.TranslateSelectionHotkey = _translateSelectionHotkey;
             _appSettings.ShowHideHotkey = _showHideHotkey;
             
