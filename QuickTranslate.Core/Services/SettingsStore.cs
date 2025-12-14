@@ -53,7 +53,13 @@ public class SettingsStore : ISettingsStore
                     MaxTokens = sp.MaxTokens,
                     TimeoutSeconds = sp.TimeoutSeconds,
                     ApiKey = DecryptApiKey(sp.EncryptedApiKey)
-                }).ToList() ?? new List<ProviderConfig>()
+                }).ToList() ?? new List<ProviderConfig>(),
+                TranslateSelectionHotkey = stored.TranslateSelectionHotkey != null 
+                    ? new HotkeyConfig(stored.TranslateSelectionHotkey.Modifiers, stored.TranslateSelectionHotkey.Key)
+                    : new HotkeyConfig(0x0006, 0x54),
+                ShowHideHotkey = stored.ShowHideHotkey != null 
+                    ? new HotkeyConfig(stored.ShowHideHotkey.Modifiers, stored.ShowHideHotkey.Key)
+                    : new HotkeyConfig(0x0006, 0x4F)
             };
 
             if (settings.Providers.Count == 0)
@@ -89,7 +95,17 @@ public class SettingsStore : ISettingsStore
                     MaxTokens = p.MaxTokens,
                     TimeoutSeconds = p.TimeoutSeconds,
                     EncryptedApiKey = EncryptApiKey(p.ApiKey)
-                }).ToList()
+                }).ToList(),
+                TranslateSelectionHotkey = new StoredHotkeyConfig 
+                { 
+                    Modifiers = settings.TranslateSelectionHotkey.Modifiers, 
+                    Key = settings.TranslateSelectionHotkey.Key 
+                },
+                ShowHideHotkey = new StoredHotkeyConfig 
+                { 
+                    Modifiers = settings.ShowHideHotkey.Modifiers, 
+                    Key = settings.ShowHideHotkey.Key 
+                }
             };
 
             var json = JsonSerializer.Serialize(stored, new JsonSerializerOptions { WriteIndented = true });
@@ -167,6 +183,14 @@ public class SettingsStore : ISettingsStore
         public string? ActiveProviderId { get; set; }
         public string? TargetLanguage { get; set; }
         public List<StoredProviderConfig>? Providers { get; set; }
+        public StoredHotkeyConfig? TranslateSelectionHotkey { get; set; }
+        public StoredHotkeyConfig? ShowHideHotkey { get; set; }
+    }
+
+    private class StoredHotkeyConfig
+    {
+        public uint Modifiers { get; set; }
+        public uint Key { get; set; }
     }
 
     private class StoredProviderConfig

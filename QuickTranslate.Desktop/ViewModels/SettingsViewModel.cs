@@ -53,6 +53,15 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasSelectedProvider;
 
+    [ObservableProperty]
+    private string _translateSelectionHotkeyText = "Ctrl+Shift+T";
+
+    [ObservableProperty]
+    private string _showHideHotkeyText = "Ctrl+Shift+O";
+
+    private HotkeyConfig _translateSelectionHotkey = new(0x0006, 0x54);
+    private HotkeyConfig _showHideHotkey = new(0x0006, 0x4F);
+
     public string[] AvailableLanguages { get; } = { "Russian", "English", "German", "French", "Spanish", "Chinese", "Japanese", "Korean" };
 
     public event EventHandler? SettingsSaved;
@@ -74,6 +83,11 @@ public partial class SettingsViewModel : ObservableObject
         Providers = new ObservableCollection<ProviderConfig>(_appSettings.Providers);
         TargetLanguage = _appSettings.TargetLanguage;
 
+        _translateSelectionHotkey = _appSettings.TranslateSelectionHotkey;
+        _showHideHotkey = _appSettings.ShowHideHotkey;
+        TranslateSelectionHotkeyText = FormatHotkey(_translateSelectionHotkey);
+        ShowHideHotkeyText = FormatHotkey(_showHideHotkey);
+
         var activeProvider = _appSettings.GetActiveProvider();
         if (activeProvider != null)
         {
@@ -85,6 +99,69 @@ public partial class SettingsViewModel : ObservableObject
         }
 
         _logger.Information("Settings loaded: {Count} providers", Providers.Count);
+    }
+
+    private static string FormatHotkey(HotkeyConfig hotkey)
+    {
+        var parts = new List<string>();
+        
+        if ((hotkey.Modifiers & 0x0002) != 0) parts.Add("Ctrl");
+        if ((hotkey.Modifiers & 0x0004) != 0) parts.Add("Shift");
+        if ((hotkey.Modifiers & 0x0001) != 0) parts.Add("Alt");
+        if ((hotkey.Modifiers & 0x0008) != 0) parts.Add("Win");
+        
+        var keyName = GetKeyName(hotkey.Key);
+        parts.Add(keyName);
+        
+        return string.Join("+", parts);
+    }
+
+    private static string GetKeyName(uint vk)
+    {
+        return vk switch
+        {
+            >= 0x41 and <= 0x5A => ((char)vk).ToString(),
+            >= 0x30 and <= 0x39 => ((char)vk).ToString(),
+            >= 0x70 and <= 0x87 => $"F{vk - 0x6F}",
+            0x20 => "Space",
+            0x0D => "Enter",
+            0x09 => "Tab",
+            0x08 => "Backspace",
+            0x2E => "Delete",
+            0x24 => "Home",
+            0x23 => "End",
+            0x21 => "PageUp",
+            0x22 => "PageDown",
+            0x26 => "Up",
+            0x28 => "Down",
+            0x25 => "Left",
+            0x27 => "Right",
+            0x2D => "Insert",
+            0xC0 => "`",
+            0xBD => "-",
+            0xBB => "=",
+            0xDB => "[",
+            0xDD => "]",
+            0xDC => "\\",
+            0xBA => ";",
+            0xDE => "'",
+            0xBC => ",",
+            0xBE => ".",
+            0xBF => "/",
+            _ => $"Key{vk:X2}"
+        };
+    }
+
+    public void SetTranslateSelectionHotkey(uint modifiers, uint key)
+    {
+        _translateSelectionHotkey = new HotkeyConfig(modifiers, key);
+        TranslateSelectionHotkeyText = FormatHotkey(_translateSelectionHotkey);
+    }
+
+    public void SetShowHideHotkey(uint modifiers, uint key)
+    {
+        _showHideHotkey = new HotkeyConfig(modifiers, key);
+        ShowHideHotkeyText = FormatHotkey(_showHideHotkey);
     }
 
     partial void OnSelectedProviderChanged(ProviderConfig? value)
@@ -190,6 +267,8 @@ public partial class SettingsViewModel : ObservableObject
 
             _appSettings.Providers = Providers.ToList();
             _appSettings.TargetLanguage = TargetLanguage;
+            _appSettings.TranslateSelectionHotkey = _translateSelectionHotkey;
+            _appSettings.ShowHideHotkey = _showHideHotkey;
             
             if (SelectedProvider != null)
             {

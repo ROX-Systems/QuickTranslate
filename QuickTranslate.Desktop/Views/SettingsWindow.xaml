@@ -189,7 +189,7 @@
         <!-- Global Settings -->
         <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="2" Margin="0,12,0,0">
             <TextBlock Text="Global Settings" FontSize="12" FontWeight="SemiBold" Foreground="#888" Margin="0,0,0,8"/>
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                 <TextBlock Text="Default Target Language:" Foreground="#aaa" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <ComboBox ItemsSource="{Binding AvailableLanguages}"
                           SelectedItem="{Binding TargetLanguage}"
@@ -197,6 +197,48 @@
                           Width="150"
                           Margin="0"/>
             </StackPanel>
+            
+            <!-- Hotkeys -->
+            <TextBlock Text="Hotkeys" FontSize="12" FontWeight="SemiBold" Foreground="#888" Margin="0,8,0,8"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Translate Selection:" Foreground="#aaa" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="0" Grid.Column="1" 
+                         x:Name="TranslateSelectionHotkeyBox"
+                         Text="{Binding TranslateSelectionHotkeyText, Mode=OneWay}"
+                         Style="{StaticResource ModernTextBox}"
+                         IsReadOnly="True"
+                         Margin="0,0,8,0"
+                         PreviewKeyDown="HotkeyBox_PreviewKeyDown"
+                         GotFocus="HotkeyBox_GotFocus"
+                         LostFocus="HotkeyBox_LostFocus"
+                         Tag="TranslateSelection"/>
+                <Button Grid.Row="0" Grid.Column="2" Content="Reset" Style="{StaticResource SmallButton}" 
+                        Click="ResetHotkey_Click" Tag="TranslateSelection" Margin="0,0,0,10"/>
+                
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Show/Hide Window:" Foreground="#aaa" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="1" Grid.Column="1" 
+                         x:Name="ShowHideHotkeyBox"
+                         Text="{Binding ShowHideHotkeyText, Mode=OneWay}"
+                         Style="{StaticResource ModernTextBox}"
+                         IsReadOnly="True"
+                         Margin="0,0,8,0"
+                         PreviewKeyDown="HotkeyBox_PreviewKeyDown"
+                         GotFocus="HotkeyBox_GotFocus"
+                         LostFocus="HotkeyBox_LostFocus"
+                         Tag="ShowHide"/>
+                <Button Grid.Row="1" Grid.Column="2" Content="Reset" Style="{StaticResource SmallButton}" 
+                        Click="ResetHotkey_Click" Tag="ShowHide" Margin="0,0,0,10"/>
+            </Grid>
         </StackPanel>
 
         <!-- Status & Buttons -->

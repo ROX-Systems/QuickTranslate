@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using QuickTranslate.Core.Interfaces;
 using QuickTranslate.Desktop.Services;
 using QuickTranslate.Desktop.Services.Interfaces;
 using QuickTranslate.Desktop.ViewModels;
@@ -15,16 +16,18 @@ public partial class MainWindow : Window
     private readonly MainViewModel _viewModel;
     private readonly HotkeyService _hotkeyService;
     private readonly IClipboardService _clipboardService;
+    private readonly ISettingsStore _settingsStore;
     private readonly ILogger _logger;
     private bool _isExiting;
 
-    public MainWindow(MainViewModel viewModel, HotkeyService hotkeyService, IClipboardService clipboardService)
+    public MainWindow(MainViewModel viewModel, HotkeyService hotkeyService, IClipboardService clipboardService, ISettingsStore settingsStore)
     {
         InitializeComponent();
         
         _viewModel = viewModel;
         _hotkeyService = hotkeyService;
         _clipboardService = clipboardService;
+        _settingsStore = settingsStore;
         _logger = Log.ForContext<MainWindow>();
         
         DataContext = _viewModel;
@@ -60,17 +63,28 @@ public partial class MainWindow : Window
         var helper = new WindowInteropHelper(this);
         _hotkeyService.Initialize(helper.Handle);
         
-        _hotkeyService.RegisterHotkey(HotkeyAction.TranslateSelection, 
-            HotkeyService.Modifiers.Control | HotkeyService.Modifiers.Shift, 
-            HotkeyService.Keys.T);
-        
-        _hotkeyService.RegisterHotkey(HotkeyAction.ShowHide, 
-            HotkeyService.Modifiers.Control | HotkeyService.Modifiers.Shift, 
-            HotkeyService.Keys.O);
+        RegisterHotkeysFromSettings();
         
         _hotkeyService.HotkeyPressed += OnHotkeyPressed;
         
         _logger.Information("Main window loaded and hotkeys registered");
+    }
+
+    public void RegisterHotkeysFromSettings()
+    {
+        var settings = _settingsStore.Load();
+        
+        _hotkeyService.UnregisterAll();
+        
+        _hotkeyService.RegisterHotkey(HotkeyAction.TranslateSelection, 
+            settings.TranslateSelectionHotkey.Modifiers, 
+            settings.TranslateSelectionHotkey.Key);
+        
+        _hotkeyService.RegisterHotkey(HotkeyAction.ShowHide, 
+            settings.ShowHideHotkey.Modifiers, 
+            settings.ShowHideHotkey.Key);
+        
+        _logger.Information("Hotkeys registered from settings");
     }
 
     private async void OnHotkeyPressed(object? sender, HotkeyEventArgs e)
@@ -165,5 +179,6 @@ public partial class MainWindow : Window
         settingsWindow.ShowDialog();
         
         _viewModel.LoadSettings();
+        RegisterHotkeysFromSettings();
     }
 }
