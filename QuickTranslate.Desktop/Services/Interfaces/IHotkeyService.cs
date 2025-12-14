@@ -1,0 +1,25 @@
+namespace QuickTranslate.Desktop.Services.Interfaces;
+
+public interface IHotkeyService : IDisposable
+{
+    event EventHandler<HotkeyEventArgs>? HotkeyPressed;
+    void RegisterHotkey(HotkeyAction action, uint modifiers, uint key);
+    void UnregisterAll();
+}
+
+public enum HotkeyAction
+{
+    TranslateSelection,
+    TranslatePage,
+    ShowHide
+}
+
+public class HotkeyEventArgs : EventArgs
+{
+    public HotkeyAction Action { get; }
+    
+    public HotkeyEventArgs(HotkeyAction action)
+    {
+        Action = action;
+    }
+}
