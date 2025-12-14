@@ -51,6 +51,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private TranslationProfile? _selectedProfile;
 
+    [ObservableProperty]
+    private bool _useAutoProfileDetection;
+
     public string[] AvailableLanguages { get; } = { "Russian", "English", "German", "French", "Spanish", "Chinese", "Japanese", "Korean" };
 
     public int SourceCharacterCount => SourceText?.Length ?? 0;
@@ -94,6 +97,7 @@ public partial class MainViewModel : ObservableObject
         TranslationProfiles = new ObservableCollection<TranslationProfile>(TranslationProfile.GetBuiltInProfiles());
         SelectedProfile = TranslationProfiles.FirstOrDefault(p => p.Id == settings.ActiveProfileId) 
                           ?? TranslationProfiles.FirstOrDefault();
+        UseAutoProfileDetection = settings.UseAutoProfileDetection;
     }
 
     partial void OnSelectedProviderChanged(ProviderConfig? value)
@@ -160,7 +164,8 @@ public partial class MainViewModel : ObservableObject
             {
                 SourceText = SourceText,
                 TargetLanguage = SelectedTargetLanguage,
-                Profile = SelectedProfile
+                Profile = UseAutoProfileDetection ? null : SelectedProfile,
+                UseAutoDetection = UseAutoProfileDetection
             };
 
             var result = await _translationService.TranslateAsync(request, _cancellationTokenSource.Token);
@@ -214,7 +219,8 @@ public partial class MainViewModel : ObservableObject
             {
                 SourceText = text,
                 TargetLanguage = settings.TargetLanguage,
-                Profile = activeProfile
+                Profile = settings.UseAutoProfileDetection ? null : activeProfile,
+                UseAutoDetection = settings.UseAutoProfileDetection
             };
 
             var result = await _translationService.TranslateAsync(request, CancellationToken.None);
@@ -295,6 +301,14 @@ public partial class MainViewModel : ObservableObject
             _settingsStore.Save(settings);
             _logger.Information("Translation profile changed to: {ProfileId}", value.Id);
         }
+    }
+
+    partial void OnUseAutoProfileDetectionChanged(bool value)
+    {
+        var settings = _settingsStore.Load();
+        settings.UseAutoProfileDetection = value;
+        _settingsStore.Save(settings);
+        _logger.Information("Auto profile detection changed to: {Value}", value);
     }
 
     partial void OnSourceTextChanged(string value)

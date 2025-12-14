@@ -6,4 +6,5 @@ public class TranslationRequest
     public string? SourceLanguage { get; set; }
     public string TargetLanguage { get; set; } = "Russian";
     public TranslationProfile? Profile { get; set; }
+    public bool UseAutoDetection { get; set; }
 }

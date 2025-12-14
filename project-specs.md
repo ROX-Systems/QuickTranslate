@@ -50,3 +50,9 @@ QuickTranslate.sln
 - Profiles stored in `TranslationProfile.cs` with `NameKey` for localization
 - Active profile saved in `AppSettings.ActiveProfileId`
 - Profile hints are appended to the system prompt in `TranslationService`
+
+### Auto Profile Detection
+- Toggle between manual profile selection and automatic detection
+- When enabled, AI analyzes text type and applies appropriate translation style
+- Setting saved in `AppSettings.UseAutoProfileDetection`
+- UI: ToggleButton with sparkle icon hides/shows profile ComboBox

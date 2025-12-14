@@ -247,4 +247,10 @@
   <data name="Profile_Casual" xml:space="preserve">
     <value>Æмбарыстгæнæн</value>
   </data>
+  <data name="AutoDetectProfile" xml:space="preserve">
+    <value>Авто</value>
+  </data>
+  <data name="AutoDetectProfileTooltip" xml:space="preserve">
+    <value>Автоматæй тексты темæ базонын</value>
+  </data>
 </root>

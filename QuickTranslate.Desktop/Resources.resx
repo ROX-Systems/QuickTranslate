@@ -247,4 +247,10 @@
   <data name="Profile_Casual" xml:space="preserve">
     <value>Разговорный</value>
   </data>
+  <data name="AutoDetectProfile" xml:space="preserve">
+    <value>Авто</value>
+  </data>
+  <data name="AutoDetectProfileTooltip" xml:space="preserve">
+    <value>Автоматически определять тематику текста</value>
+  </data>
 </root>

@@ -134,14 +134,29 @@
                     
                     <!-- Profile Selection -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <!-- Auto Toggle -->
+                        <ToggleButton IsChecked="{Binding UseAutoProfileDetection, Mode=TwoWay}"
+                                      ToolTip="{Binding [AutoDetectProfileTooltip], Source={x:Static local:Loc.Instance}}"
+                                      Padding="8,4"
+                                      Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Sparkle24" FontSize="14" Margin="0,0,4,0"/>
+                                <TextBlock Text="{Binding [AutoDetectProfile], Source={x:Static local:Loc.Instance}}" 
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ToggleButton>
+                        
+                        <!-- Manual Profile Selection -->
                         <ui:SymbolIcon Symbol="BookOpen24" 
                                        Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
                                        FontSize="14"
-                                       Margin="0,0,6,0"/>
+                                       Margin="0,0,6,0"
+                                       Visibility="{Binding UseAutoProfileDetection, Converter={StaticResource InverseBoolToVis}}"/>
                         <ComboBox ItemsSource="{Binding TranslationProfiles}"
                                   SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
                                   MinWidth="160"
-                                  Padding="8,4">
+                                  Padding="8,4"
+                                  Visibility="{Binding UseAutoProfileDetection, Converter={StaticResource InverseBoolToVis}}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Converter={StaticResource ProfileNameConverter}}"/>

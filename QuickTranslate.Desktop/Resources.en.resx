@@ -247,4 +247,10 @@
   <data name="Profile_Casual" xml:space="preserve">
     <value>Casual</value>
   </data>
+  <data name="AutoDetectProfile" xml:space="preserve">
+    <value>Auto</value>
+  </data>
+  <data name="AutoDetectProfileTooltip" xml:space="preserve">
+    <value>Automatically detect text topic</value>
+  </data>
 </root>
