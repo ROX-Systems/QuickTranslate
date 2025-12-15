@@ -2,9 +2,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Interop;
-using System.Windows.Media.Imaging;
 using QuickTranslate.Core.Interfaces;
-using QuickTranslate.Desktop.Services;
 using QuickTranslate.Desktop.Services.Interfaces;
 using QuickTranslate.Desktop.ViewModels;
 using Serilog;
@@ -15,13 +13,13 @@ namespace QuickTranslate.Desktop.Views;
 public partial class MainWindow : FluentWindow
 {
     private readonly MainViewModel _viewModel;
-    private readonly HotkeyService _hotkeyService;
+    private readonly IHotkeyService _hotkeyService;
     private readonly IClipboardService _clipboardService;
     private readonly ISettingsStore _settingsStore;
     private readonly ILogger _logger;
     private bool _isExiting;
 
-    public MainWindow(MainViewModel viewModel, HotkeyService hotkeyService, IClipboardService clipboardService, ISettingsStore settingsStore)
+    public MainWindow(MainViewModel viewModel, IHotkeyService hotkeyService, IClipboardService clipboardService, ISettingsStore settingsStore)
     {
         InitializeComponent();
         

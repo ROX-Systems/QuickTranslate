@@ -251,6 +251,14 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <ui:Button Appearance="Transparent" 
+                                   Command="{Binding SpeakTranslationCommand}"
+                                   ToolTip="{Binding [SpeakTranslation], Source={x:Static local:Loc.Instance}}"
+                                   Padding="6,4"
+                                   Visibility="{Binding CanSpeak, Converter={StaticResource BoolToVis}}">
+                            <ui:SymbolIcon Symbol="Speaker224" FontSize="14"
+                                           Foreground="{Binding IsSpeaking, Converter={StaticResource SpeakingColorConverter}}"/>
+                        </ui:Button>
+                        <ui:Button Appearance="Transparent" 
                                    Command="{Binding CopyTranslationCommand}"
                                    ToolTip="{Binding [CopyToClipboard], Source={x:Static local:Loc.Instance}}"
                                    Padding="6,4">

@@ -1,13 +1,12 @@
 using System.Collections.ObjectModel;
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using QuickTranslate.Core.Interfaces;
 using QuickTranslate.Core.Models;
+using QuickTranslate.Core.Services;
 using QuickTranslate.Desktop.Services;
 using QuickTranslate.Desktop.Services.Interfaces;
 using Serilog;
-using System.Linq;
 
 namespace QuickTranslate.Desktop.ViewModels;
 
@@ -17,6 +16,8 @@ public partial class MainViewModel : ObservableObject
     private readonly ISettingsStore _settingsStore;
     private readonly IProviderClient _providerClient;
     private readonly IClipboardService _clipboardService;
+    private readonly ITtsService _ttsService;
+    private readonly IAudioPlayerService _audioPlayerService;
     private readonly ILogger _logger;
 
     private CancellationTokenSource? _cancellationTokenSource;
@@ -54,6 +55,12 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _useAutoProfileDetection;
 
+    [ObservableProperty]
+    private bool _isSpeaking;
+
+    [ObservableProperty]
+    private bool _canSpeak;
+
     public string[] AvailableLanguages { get; } = { "Russian", "English", "German", "French", "Spanish", "Chinese", "Japanese", "Korean" };
 
     public int SourceCharacterCount => SourceText?.Length ?? 0;
@@ -66,15 +73,26 @@ public partial class MainViewModel : ObservableObject
         ITranslationService translationService,
         ISettingsStore settingsStore,
         IProviderClient providerClient,
-        IClipboardService clipboardService)
+        IClipboardService clipboardService,
+        ITtsService ttsService,
+        IAudioPlayerService audioPlayerService)
     {
         _translationService = translationService;
         _settingsStore = settingsStore;
         _providerClient = providerClient;
         _clipboardService = clipboardService;
+        _ttsService = ttsService;
+        _audioPlayerService = audioPlayerService;
         _logger = Log.ForContext<MainViewModel>();
 
+        _audioPlayerService.PlaybackFinished += OnPlaybackFinished;
+
         LoadSettings();
+    }
+
+    private void OnPlaybackFinished(object? sender, EventArgs e)
+    {
+        IsSpeaking = false;
     }
 
     public void LoadSettings()
@@ -207,6 +225,55 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private async Task SpeakTranslationAsync()
+    {
+        if (string.IsNullOrWhiteSpace(TranslatedText))
+            return;
+
+        if (IsSpeaking)
+        {
+            _audioPlayerService.Stop();
+            IsSpeaking = false;
+            StatusMessage = LocalizationService.Instance["Ready"];
+            return;
+        }
+
+        var langCode = LanguageNormalizer.Normalize(SelectedTargetLanguage);
+        
+        if (!_ttsService.IsLanguageSupported(langCode))
+        {
+            StatusMessage = LocalizationService.Instance["TtsLanguageNotSupported"];
+            return;
+        }
+
+        try
+        {
+            IsSpeaking = true;
+            StatusMessage = LocalizationService.Instance["Speaking"];
+            
+            var audioData = await _ttsService.SynthesizeAsync(TranslatedText, langCode);
+            
+            if (audioData != null && audioData.Length > 0)
+            {
+                await _audioPlayerService.PlayAsync(audioData);
+            }
+            else
+            {
+                StatusMessage = LocalizationService.Instance["TtsFailed"];
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "TTS error");
+            StatusMessage = LocalizationService.Instance["TtsFailed"];
+        }
+        finally
+        {
+            IsSpeaking = false;
+        }
+    }
+
     public async Task<(bool Success, string? Translation, string? Error)> TranslateForPopupAsync(string text)
     {
         try
@@ -290,6 +357,19 @@ public partial class MainViewModel : ObservableObject
         var settings = _settingsStore.Load();
         settings.TargetLanguage = value;
         _settingsStore.Save(settings);
+        UpdateCanSpeak();
+    }
+
+    partial void OnTranslatedTextChanged(string value)
+    {
+        OnPropertyChanged(nameof(TranslatedCharacterCount));
+        UpdateCanSpeak();
+    }
+
+    private void UpdateCanSpeak()
+    {
+        var langCode = LanguageNormalizer.Normalize(SelectedTargetLanguage);
+        CanSpeak = !string.IsNullOrWhiteSpace(TranslatedText) && _ttsService.IsLanguageSupported(langCode);
     }
 
     partial void OnSelectedProfileChanged(TranslationProfile? value)
@@ -316,10 +396,6 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(SourceCharacterCount));
     }
 
-    partial void OnTranslatedTextChanged(string value)
-    {
-        OnPropertyChanged(nameof(TranslatedCharacterCount));
-    }
 
     [RelayCommand]
     private void SwapTexts()

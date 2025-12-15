@@ -45,6 +45,8 @@ public class SettingsStore : ISettingsStore
                 TargetLanguage = stored.TargetLanguage ?? "Russian",
                 InterfaceLanguage = stored.InterfaceLanguage,
                 ColorTheme = stored.ColorTheme,
+                ActiveProfileId = stored.ActiveProfileId ?? "general",
+                UseAutoProfileDetection = stored.UseAutoProfileDetection,
                 Providers = stored.Providers?.Select(sp => new ProviderConfig
                 {
                     Id = sp.Id ?? Guid.NewGuid().ToString(),
@@ -89,6 +91,8 @@ public class SettingsStore : ISettingsStore
                 TargetLanguage = settings.TargetLanguage,
                 InterfaceLanguage = settings.InterfaceLanguage,
                 ColorTheme = settings.ColorTheme,
+                ActiveProfileId = settings.ActiveProfileId,
+                UseAutoProfileDetection = settings.UseAutoProfileDetection,
                 Providers = settings.Providers.Select(p => new StoredProviderConfig
                 {
                     Id = p.Id,
@@ -188,6 +192,8 @@ public class SettingsStore : ISettingsStore
         public string? TargetLanguage { get; set; }
         public string? InterfaceLanguage { get; set; }
         public string? ColorTheme { get; set; }
+        public string? ActiveProfileId { get; set; }
+        public bool UseAutoProfileDetection { get; set; }
         public List<StoredProviderConfig>? Providers { get; set; }
         public StoredHotkeyConfig? TranslateSelectionHotkey { get; set; }
         public StoredHotkeyConfig? ShowHideHotkey { get; set; }

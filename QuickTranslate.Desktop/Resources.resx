@@ -253,4 +253,18 @@
   <data name="AutoDetectProfileTooltip" xml:space="preserve">
     <value>Автоматически определять тематику текста</value>
   </data>
+  
+  <!-- TTS -->
+  <data name="SpeakTranslation" xml:space="preserve">
+    <value>Озвучить перевод</value>
+  </data>
+  <data name="Speaking" xml:space="preserve">
+    <value>Озвучивание...</value>
+  </data>
+  <data name="TtsLanguageNotSupported" xml:space="preserve">
+    <value>Озвучивание недоступно для этого языка</value>
+  </data>
+  <data name="TtsFailed" xml:space="preserve">
+    <value>Ошибка озвучивания</value>
+  </data>
 </root>

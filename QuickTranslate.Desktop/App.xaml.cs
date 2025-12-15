@@ -2,7 +2,6 @@ using System.IO;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using QuickTranslate.Core.Interfaces;
-using QuickTranslate.Core.Models;
 using QuickTranslate.Core.Services;
 using QuickTranslate.Desktop.Services;
 using QuickTranslate.Desktop.Services.Interfaces;
@@ -68,9 +67,11 @@ public partial class App : Application
         });
 
         services.AddSingleton<ITranslationService, TranslationService>();
+        services.AddSingleton<ITtsService, PiperTtsService>();
 
-        services.AddSingleton<HotkeyService>();
+        services.AddSingleton<IHotkeyService, HotkeyService>();
         services.AddSingleton<IClipboardService, ClipboardService>();
+        services.AddSingleton<IAudioPlayerService, AudioPlayerService>();
 
         services.AddSingleton<MainViewModel>();
         services.AddTransient<SettingsViewModel>();

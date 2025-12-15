@@ -83,3 +83,18 @@ public class ProfileNameConverter : IValueConverter
         throw new NotImplementedException();
     }
 }
+
+public class SpeakingColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool isSpeaking && isSpeaking)
+            return new SolidColorBrush(Color.FromRgb(76, 175, 80));
+        return new SolidColorBrush(Color.FromRgb(136, 136, 136));
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}

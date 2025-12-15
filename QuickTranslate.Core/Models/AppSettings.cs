@@ -23,6 +23,8 @@ public class AppSettings
     public string? ColorTheme { get; set; } = "OceanBlue";
     public string ActiveProfileId { get; set; } = "general";
     public bool UseAutoProfileDetection { get; set; } = false;
+    public bool TtsEnabled { get; set; } = true;
+    public bool AutoSpeakAfterTranslate { get; set; } = false;
     
     private HotkeyConfig _translateSelectionHotkey = new(0x0006, 0x54); // Ctrl+Shift+T
     private HotkeyConfig _showHideHotkey = new(0x0006, 0x4F); // Ctrl+Shift+O

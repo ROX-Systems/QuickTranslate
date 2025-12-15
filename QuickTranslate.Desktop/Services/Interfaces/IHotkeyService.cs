@@ -3,6 +3,7 @@ namespace QuickTranslate.Desktop.Services.Interfaces;
 public interface IHotkeyService : IDisposable
 {
     event EventHandler<HotkeyEventArgs>? HotkeyPressed;
+    void Initialize(IntPtr windowHandle);
     void RegisterHotkey(HotkeyAction action, uint modifiers, uint key);
     void UnregisterAll();
 }

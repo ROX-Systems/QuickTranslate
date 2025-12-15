@@ -253,4 +253,18 @@
   <data name="AutoDetectProfileTooltip" xml:space="preserve">
     <value>Automatically detect text topic</value>
   </data>
+  
+  <!-- TTS -->
+  <data name="SpeakTranslation" xml:space="preserve">
+    <value>Speak translation</value>
+  </data>
+  <data name="Speaking" xml:space="preserve">
+    <value>Speaking...</value>
+  </data>
+  <data name="TtsLanguageNotSupported" xml:space="preserve">
+    <value>TTS is not available for this language</value>
+  </data>
+  <data name="TtsFailed" xml:space="preserve">
+    <value>TTS failed</value>
+  </data>
 </root>

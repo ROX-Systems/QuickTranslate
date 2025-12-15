@@ -253,4 +253,18 @@
   <data name="AutoDetectProfileTooltip" xml:space="preserve">
     <value>Автоматæй тексты темæ базонын</value>
   </data>
+  
+  <!-- TTS -->
+  <data name="SpeakTranslation" xml:space="preserve">
+    <value>Хъæрзынгæ кæнын</value>
+  </data>
+  <data name="Speaking" xml:space="preserve">
+    <value>Хъæрзынгæнæ...</value>
+  </data>
+  <data name="TtsLanguageNotSupported" xml:space="preserve">
+    <value>Хъæрзынгæ ам æвзаджы сты нæй</value>
+  </data>
+  <data name="TtsFailed" xml:space="preserve">
+    <value>Хъæрзынгæнæг фæлды</value>
+  </data>
 </root>
