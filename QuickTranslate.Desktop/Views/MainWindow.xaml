@@ -50,6 +50,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
                 <!-- Source Language (Auto-detect) -->
@@ -94,8 +95,17 @@
                     </StackPanel>
                 </StackPanel>
                 
-                <!-- Settings Button -->
+                <!-- History Button -->
                 <ui:Button Grid.Column="3" 
+                           Appearance="Transparent"
+                           Click="History_Click"
+                           ToolTip="{Binding [History], Source={x:Static local:Loc.Instance}}"
+                           Margin="8,0,0,0">
+                    <ui:SymbolIcon Symbol="History24"/>
+                </ui:Button>
+                
+                <!-- Settings Button -->
+                <ui:Button Grid.Column="4" 
                            Appearance="Transparent"
                            Click="Settings_Click"
                            ToolTip="{Binding [Settings], Source={x:Static local:Loc.Instance}}"

@@ -267,4 +267,51 @@
   <data name="TtsFailed" xml:space="preserve">
     <value>Ошибка озвучивания</value>
   </data>
+  
+  <!-- History -->
+  <data name="History" xml:space="preserve">
+    <value>История переводов</value>
+  </data>
+  <data name="SearchHistory" xml:space="preserve">
+    <value>Поиск в истории...</value>
+  </data>
+  <data name="Favorites" xml:space="preserve">
+    <value>Избранное</value>
+  </data>
+  <data name="ShowFavoritesOnly" xml:space="preserve">
+    <value>Показать только избранное</value>
+  </data>
+  <data name="ClearHistory" xml:space="preserve">
+    <value>Очистить историю</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Очистить</value>
+  </data>
+  <data name="ToggleFavorite" xml:space="preserve">
+    <value>Добавить/убрать из избранного</value>
+  </data>
+  <data name="UseThisTranslation" xml:space="preserve">
+    <value>Использовать этот перевод</value>
+  </data>
+  <data name="CopySource" xml:space="preserve">
+    <value>Копировать исходный текст</value>
+  </data>
+  <data name="CopyTranslation" xml:space="preserve">
+    <value>Копировать перевод</value>
+  </data>
+  <data name="NoHistoryItems" xml:space="preserve">
+    <value>История переводов пуста</value>
+  </data>
+  <data name="HistoryItemsCount" xml:space="preserve">
+    <value>Записей: {0}</value>
+  </data>
+  <data name="HistoryItemDeleted" xml:space="preserve">
+    <value>Запись удалена</value>
+  </data>
+  <data name="HistoryCleared" xml:space="preserve">
+    <value>История очищена</value>
+  </data>
+  <data name="Yesterday" xml:space="preserve">
+    <value>Вчера</value>
+  </data>
 </root>

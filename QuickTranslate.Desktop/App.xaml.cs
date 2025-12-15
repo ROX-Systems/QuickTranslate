@@ -80,9 +80,11 @@ public partial class App : Application
 
         services.AddSingleton<MainViewModel>();
         services.AddTransient<SettingsViewModel>();
+        services.AddTransient<HistoryViewModel>();
 
         services.AddSingleton<MainWindow>();
         services.AddTransient<SettingsWindow>();
+        services.AddTransient<HistoryWindow>();
 
         _serviceProvider = services.BuildServiceProvider();
     }

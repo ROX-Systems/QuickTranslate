@@ -18,6 +18,7 @@ public partial class MainViewModel : ObservableObject
     private readonly IClipboardService _clipboardService;
     private readonly ITtsService _ttsService;
     private readonly IAudioPlayerService _audioPlayerService;
+    private readonly ITranslationHistoryService _historyService;
     private readonly ILogger _logger;
 
     private CancellationTokenSource? _cancellationTokenSource;
@@ -75,7 +76,8 @@ public partial class MainViewModel : ObservableObject
         IProviderClient providerClient,
         IClipboardService clipboardService,
         ITtsService ttsService,
-        IAudioPlayerService audioPlayerService)
+        IAudioPlayerService audioPlayerService,
+        ITranslationHistoryService historyService)
     {
         _translationService = translationService;
         _settingsStore = settingsStore;
@@ -83,6 +85,7 @@ public partial class MainViewModel : ObservableObject
         _clipboardService = clipboardService;
         _ttsService = ttsService;
         _audioPlayerService = audioPlayerService;
+        _historyService = historyService;
         _logger = Log.ForContext<MainViewModel>();
 
         _audioPlayerService.PlaybackFinished += OnPlaybackFinished;
@@ -194,6 +197,8 @@ public partial class MainViewModel : ObservableObject
                 StatusMessage = result.DetectedLanguage != null 
                     ? string.Format(LocalizationService.Instance["TranslatedFrom"], result.DetectedLanguage)
                     : LocalizationService.Instance["TranslationComplete"];
+                
+                SaveToHistory(result.TranslatedText, result.DetectedLanguage);
             }
             else
             {
@@ -339,6 +344,29 @@ public partial class MainViewModel : ObservableObject
         StatusMessage = message;
         IsLoading = false;
         _logger.Warning("Error shown to user: {Message}", message);
+    }
+
+    private void SaveToHistory(string translatedText, string? detectedLanguage)
+    {
+        try
+        {
+            var historyItem = new TranslationHistoryItem
+            {
+                SourceText = SourceText,
+                TranslatedText = translatedText,
+                SourceLanguage = detectedLanguage ?? "auto",
+                TargetLanguage = SelectedTargetLanguage,
+                ProviderName = SelectedProvider?.Name,
+                ProfileId = UseAutoProfileDetection ? "auto" : SelectedProfile?.Id
+            };
+            
+            _historyService.Add(historyItem);
+            _logger.Information("Translation saved to history");
+        }
+        catch (Exception ex)
+        {
+            _logger.Warning(ex, "Failed to save translation to history");
+        }
     }
 
     public async Task TranslateTextAsync(string text)

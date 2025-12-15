@@ -202,6 +202,28 @@ public partial class MainWindow : FluentWindow
         RegisterHotkeysFromSettings();
     }
 
+    private void History_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var historyWindow = App.GetService<HistoryWindow>();
+            historyWindow.Owner = this;
+            
+            if (historyWindow.ShowDialog() == true && historyWindow.SelectedItem != null)
+            {
+                _viewModel.SourceText = historyWindow.SelectedItem.SourceText;
+                _viewModel.TranslatedText = historyWindow.SelectedItem.TranslatedText;
+                _viewModel.SelectedTargetLanguage = historyWindow.SelectedItem.TargetLanguage;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to open history window");
+            System.Windows.MessageBox.Show($"Error: {ex.Message}\n\n{ex.StackTrace}", "History Error", 
+                System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
     private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
         var ctrl = (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0;

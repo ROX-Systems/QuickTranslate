@@ -136,3 +136,16 @@ Response: raw WAV binary
 - `LanguageNormalizer` supports 15 languages: ru, en, de, es, fr, it, hi, zh, ja, ko, pt, ar, tr, pl, uk
 - TTS supported for: ru, en, de, es, fr, it, hi
 - `GetLanguageDisplayName()` helper for UI display
+
+## Translation History UI
+- `HistoryWindow` — FluentWindow с WPF-UI дизайном
+- `HistoryViewModel` — MVVM с RelayCommand
+- Функции:
+  - Поиск по тексту (source/translation)
+  - Фильтр избранного
+  - Добавление/удаление из избранного (⭐)
+  - Копирование source/translation
+  - Использование записи (заполняет MainWindow)
+  - Очистка истории (сохраняет избранное)
+- Автосохранение: каждый успешный перевод сохраняется в историю
+- Кнопка истории (🕐) в заголовке MainWindow
