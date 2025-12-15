@@ -11,6 +11,11 @@ public class SettingsStore : ISettingsStore
 {
     private readonly string _settingsPath;
     private readonly ILogger _logger;
+    private readonly object _lock = new();
+    
+    private AppSettings? _cachedSettings;
+    private DateTime _cacheTime = DateTime.MinValue;
+    private DateTime _lastFileWrite = DateTime.MinValue;
 
     public SettingsStore()
     {
@@ -23,13 +28,38 @@ public class SettingsStore : ISettingsStore
 
     public AppSettings Load()
     {
+        lock (_lock)
+        {
+            if (IsCacheValid())
+            {
+                return _cachedSettings!;
+            }
+            
+            return LoadFromFile();
+        }
+    }
+
+    private bool IsCacheValid()
+    {
+        if (_cachedSettings == null)
+            return false;
+
+        if (!File.Exists(_settingsPath))
+            return false;
+
+        var fileWriteTime = File.GetLastWriteTimeUtc(_settingsPath);
+        return fileWriteTime <= _lastFileWrite;
+    }
+
+    private AppSettings LoadFromFile()
+    {
         try
         {
             if (!File.Exists(_settingsPath))
             {
                 _logger.Information("Settings file not found, creating defaults");
                 var defaults = CreateDefaultSettings();
-                Save(defaults);
+                SaveInternal(defaults);
                 return defaults;
             }
 
@@ -71,6 +101,8 @@ public class SettingsStore : ISettingsStore
                 settings.Providers.Add(CreateDefaultProvider());
             }
 
+            _cachedSettings = settings;
+            _lastFileWrite = File.GetLastWriteTimeUtc(_settingsPath);
             _logger.Information("Settings loaded: {Count} providers", settings.Providers.Count);
             return settings;
         }
@@ -82,6 +114,14 @@ public class SettingsStore : ISettingsStore
     }
 
     public void Save(AppSettings settings)
+    {
+        lock (_lock)
+        {
+            SaveInternal(settings);
+        }
+    }
+
+    private void SaveInternal(AppSettings settings)
     {
         try
         {
@@ -118,6 +158,10 @@ public class SettingsStore : ISettingsStore
 
             var json = JsonSerializer.Serialize(stored, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(_settingsPath, json);
+            
+            _cachedSettings = settings;
+            _lastFileWrite = File.GetLastWriteTimeUtc(_settingsPath);
+            
             _logger.Information("Settings saved: {Count} providers", settings.Providers.Count);
         }
         catch (Exception ex)

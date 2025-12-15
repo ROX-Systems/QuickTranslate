@@ -114,3 +114,25 @@ Response: raw WAV binary
 - Interfaces in separate `Interfaces/` folders
 - ImplicitUsings enabled - avoid redundant `using` statements
 - All settings persisted via `ISettingsStore` including `ActiveProfileId` and `UseAutoProfileDetection`
+
+## Translation History
+- `ITranslationHistoryService` / `TranslationHistoryService` — manages translation history
+- History stored in `%LOCALAPPDATA%\QuickTranslate\history.json`
+- Max 100 items, favorites are preserved during cleanup
+- `TranslationHistoryItem` model with source/target text, languages, timestamp, favorite flag
+
+## HTTP Client & Retry Policy
+- `OpenAiProviderClient` uses `IHttpClientFactory` for proper connection pooling
+- Built-in retry logic: 3 attempts with exponential backoff (1s, 2s, 4s)
+- Retryable errors: 429, 500, 502, 503, 504, timeout
+- Authorization header set per-request (not on HttpClient)
+
+## Settings Caching
+- `SettingsStore` caches settings in memory
+- Cache invalidated when file modification time changes
+- Thread-safe with lock synchronization
+
+## Language Support
+- `LanguageNormalizer` supports 15 languages: ru, en, de, es, fr, it, hi, zh, ja, ko, pt, ar, tr, pl, uk
+- TTS supported for: ru, en, de, es, fr, it, hi
+- `GetLanguageDisplayName()` helper for UI display

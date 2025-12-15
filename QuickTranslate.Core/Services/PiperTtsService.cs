@@ -12,23 +12,19 @@ public class PiperTtsService : ITtsService, IDisposable
     private readonly ILogger _logger;
     private readonly string _baseUrl;
 
-    private static readonly Dictionary<string, string> TtsEndpoints = new()
-    {
-        ["ru"] = "https://tts.rox-net.ru/ru/api/tts",
-        ["en"] = "https://tts.rox-net.ru/en/api/tts",
-        ["de"] = "https://tts.rox-net.ru/de/api/tts",
-        ["es"] = "https://tts.rox-net.ru/es/api/tts",
-        ["fr"] = "https://tts.rox-net.ru/fr/api/tts",
-        ["it"] = "https://tts.rox-net.ru/it/api/tts",
-        ["hi"] = "https://tts.rox-net.ru/hi/api/tts"
+    private static readonly HashSet<string> SupportedLanguages = new() 
+    { 
+        "ru", "en", "de", "es", "fr", "it", "hi" 
     };
 
     public PiperTtsService(string? baseUrl = null)
     {
         _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         _logger = Log.ForContext<PiperTtsService>();
-        _baseUrl = baseUrl ?? "https://tts.rox-net.ru";
+        _baseUrl = (baseUrl ?? "https://tts.rox-net.ru").TrimEnd('/');
     }
+
+    private string GetEndpoint(string languageCode) => $"{_baseUrl}/{languageCode}/api/tts";
 
     public async Task<byte[]?> SynthesizeAsync(string text, string languageCode, CancellationToken cancellationToken = default)
     {
@@ -40,12 +36,13 @@ public class PiperTtsService : ITtsService, IDisposable
 
         var normalizedLang = LanguageNormalizer.Normalize(languageCode);
         
-        if (!TtsEndpoints.TryGetValue(normalizedLang, out var endpoint))
+        if (!SupportedLanguages.Contains(normalizedLang))
         {
             _logger.Warning("TTS: Unsupported language {Language}, falling back to ru", languageCode);
-            endpoint = TtsEndpoints["ru"];
             normalizedLang = "ru";
         }
+        
+        var endpoint = GetEndpoint(normalizedLang);
 
         _logger.Information("TTS: Synthesizing {Length} chars in {Language}", text.Length, normalizedLang);
 

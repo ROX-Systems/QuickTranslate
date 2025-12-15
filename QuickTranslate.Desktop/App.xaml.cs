@@ -1,4 +1,5 @@
 using System.IO;
+using System.Net.Http;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using QuickTranslate.Core.Interfaces;
@@ -56,14 +57,18 @@ public partial class App : Application
     {
         var services = new ServiceCollection();
 
+        services.AddHttpClient("OpenAI");
+        
         services.AddSingleton<ISettingsStore, SettingsStore>();
+        services.AddSingleton<ITranslationHistoryService, TranslationHistoryService>();
         
         services.AddSingleton<IProviderClient>(sp =>
         {
             var store = sp.GetRequiredService<ISettingsStore>();
+            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             var settings = store.Load();
             var activeProvider = settings.GetActiveProvider();
-            return new OpenAiProviderClient(activeProvider);
+            return new OpenAiProviderClient(activeProvider, httpClientFactory);
         });
 
         services.AddSingleton<ITranslationService, TranslationService>();
