@@ -17,27 +17,48 @@ QuickTranslate.sln
 │   ├── Interfaces/
 │   │   ├── IProviderClient.cs
 │   │   ├── ISettingsStore.cs
-│   │   └── ITranslationService.cs
+│   │   ├── ITranslationService.cs
+│   │   ├── ITranslationHistoryService.cs
+│   │   └── ITtsService.cs
 │   ├── Models/
 │   │   ├── AppSettings.cs
 │   │   ├── ChatCompletionRequest.cs
 │   │   ├── ProviderConfig.cs
 │   │   ├── TranslationProfile.cs
 │   │   ├── TranslationRequest.cs
-│   │   └── TranslationResult.cs
+│   │   ├── TranslationResult.cs
+│   │   └── TranslationHistoryItem.cs
 │   └── Services/
 │       ├── OpenAiProviderClient.cs
 │       ├── SettingsStore.cs
-│       └── TranslationService.cs
+│       ├── TranslationService.cs
+│       └── TranslationHistoryService.cs
 └── QuickTranslate.Desktop/    # WPF application (net8.0-windows)
     ├── ViewModels/
+    │   ├── MainViewModel.cs
+    │   ├── SettingsViewModel.cs
+    │   └── HistoryViewModel.cs
     ├── Views/
+    │   ├── MainWindow.xaml
+    │   ├── SettingsWindow.xaml
+    │   ├── HistoryWindow.xaml
+    │   └── TranslationPopup.xaml
     ├── Services/
-    │   └── Interfaces/
-    │       ├── IClipboardService.cs
-    │       └── IHotkeyService.cs
+    │   ├── Interfaces/
+    │   │   ├── IClipboardService.cs
+    │   │   ├── IHotkeyService.cs
+    │   │   └── IAudioPlayerService.cs
+    │   ├── ClipboardService.cs
+    │   ├── HotkeyService.cs
+    │   ├── AudioPlayerService.cs
+    │   ├── LocalizationService.cs
+    │   └── ThemeService.cs
     ├── Converters/
+    │   └── FavoriteIconConverter.cs
     └── Resources/
+        ├── Resources.resx
+        ├── Resources.en.resx
+        └── Resources.os.resx
 ```
 
 ## Key Design Decisions
@@ -149,3 +170,34 @@ Response: raw WAV binary
   - Очистка истории (сохраняет избранное)
 - Автосохранение: каждый успешный перевод сохраняется в историю
 - Кнопка истории (🕐) в заголовке MainWindow
+
+## Translation Popup
+- `TranslationPopup.xaml` — всплывающее окно для перевода выделенного текста
+- Появляется при нажатии глобального хоткея (Ctrl+Shift+A)
+- Автоматическое копирование текста через SendInput (заблокировано UIPI в Windows)
+- Темный фон (#FF2D2D30) с белым текстом для контрастности
+- Функции: копирование перевода, закрытие при потере фокуса
+
+## Theme Service
+- `ThemeService.cs` — управление темами приложения
+- Поддержка светлой/темной темы с автоматическим переключением
+- Интеграция с WPF-UI темами
+- Сохранение выбранной темы в настройках
+
+## Hotkey Service
+- `HotkeyService.cs` — регистрация глобальных хоткеев
+- Использует Win32 API (RegisterHotKey/UnregisterHotKey)
+- Message-only window для обработки сообщений хоткеев
+- Поддержка: TranslateSelection (Ctrl+Shift+A), ShowHide (Ctrl+Alt+O)
+
+## Clipboard Service
+- `ClipboardService.cs` — работа с буфером обмена
+- Прямое использование Win32 API вместо Avalonia clipboard
+- Попытка автоматического копирования через SendInput
+- Fallback на текущее содержимое буфера при блокировке UIPI
+
+## Additional Features
+- System tray icon с контекстным меню
+- Автозапуск при старте системы
+- Минимизация в трей при закрытии
+- Горячие клавиши для всех основных действий

@@ -13,8 +13,8 @@
         MinHeight="400"
         MinWidth="500"
         WindowStartupLocation="CenterOwner"
-        Background="{ui:ThemeResource ApplicationBackgroundBrush}"
-        Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+        Background="{DynamicResource ApplicationBackgroundBrush}"
+        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica">
     
@@ -126,13 +126,13 @@
                                     <!-- Timestamp -->
                                     <TextBlock Grid.Column="0"
                                                Text="{Binding Timestamp, Converter={StaticResource TimestampConverter}}"
-                                               Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
+                                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                                FontSize="11"
                                                VerticalAlignment="Center"/>
                                     
                                     <!-- Language Badge -->
                                     <Border Grid.Column="1"
-                                            Background="{ui:ThemeResource AccentFillColorDefaultBrush}"
+                                            Background="{DynamicResource AccentFillColorDefaultBrush}"
                                             CornerRadius="4"
                                             Padding="6,2"
                                             Margin="10,0,0,0">
@@ -145,7 +145,7 @@
                                     <!-- Provider -->
                                     <TextBlock Grid.Column="2"
                                                Text="{Binding ProviderName}"
-                                               Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
+                                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                                                FontSize="11"
                                                Margin="10,0,0,0"
                                                VerticalAlignment="Center"/>
@@ -174,7 +174,7 @@
                                                    ToolTip="{Binding [Delete], Source={x:Static local:Loc.Instance}}"
                                                    Padding="6">
                                             <ui:SymbolIcon Symbol="Delete24" FontSize="14"
-                                                           Foreground="{ui:ThemeResource SystemFillColorCriticalBrush}"/>
+                                                           Foreground="{DynamicResource SystemFillColorCriticalBrush}"/>
                                         </ui:Button>
                                     </StackPanel>
                                 </Grid>
@@ -189,7 +189,7 @@
                                                Text="{Binding SourceText}"
                                                TextTrimming="CharacterEllipsis"
                                                MaxHeight="40"
-                                               Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                                FontSize="12"/>
                                     <ui:Button Grid.Column="1"
                                                Appearance="Transparent"
@@ -212,7 +212,7 @@
                                                Text="{Binding TranslatedText}"
                                                TextTrimming="CharacterEllipsis"
                                                MaxHeight="40"
-                                               Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
+                                               Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                                                FontSize="13"
                                                FontWeight="Medium"/>
                                     <ui:Button Grid.Column="1"
@@ -237,9 +237,9 @@
                         HorizontalAlignment="Center"
                         Visibility="{Binding HistoryItems.Count, Converter={StaticResource ZeroToVisibilityConverter}}">
                 <ui:SymbolIcon Symbol="History24" FontSize="48"
-                               Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"/>
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"/>
                 <TextBlock Text="{Binding [NoHistoryItems], Source={x:Static local:Loc.Instance}}"
-                           Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
+                           Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                            FontSize="14"
                            Margin="0,12,0,0"/>
             </StackPanel>
@@ -247,7 +247,7 @@
             <!-- Status Bar -->
             <TextBlock Grid.Row="2"
                        Text="{Binding StatusMessage}"
-                       Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
+                       Foreground="{DynamicResource TextFillColorTertiaryBrush}"
                        FontSize="12"
                        Margin="0,8,0,0"/>
         </Grid>

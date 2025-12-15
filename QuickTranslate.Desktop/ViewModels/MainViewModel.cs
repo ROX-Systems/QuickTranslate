@@ -230,7 +230,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(AllowConcurrentExecutions = true)]
     private async Task SpeakTranslationAsync()
     {
         if (string.IsNullOrWhiteSpace(TranslatedText))

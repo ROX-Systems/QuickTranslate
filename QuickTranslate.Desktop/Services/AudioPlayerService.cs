@@ -1,5 +1,5 @@
 using System.IO;
-using System.Media;
+using NAudio.Wave;
 using QuickTranslate.Desktop.Services.Interfaces;
 using Serilog;
 
@@ -8,8 +8,9 @@ namespace QuickTranslate.Desktop.Services;
 public class AudioPlayerService : IAudioPlayerService
 {
     private readonly ILogger _logger;
-    private SoundPlayer? _soundPlayer;
-    private CancellationTokenSource? _playbackCts;
+    private WaveOutEvent? _waveOut;
+    private WaveFileReader? _waveReader;
+    private MemoryStream? _audioStream;
     private bool _isPlaying;
 
     public bool IsPlaying => _isPlaying;
@@ -30,22 +31,38 @@ public class AudioPlayerService : IAudioPlayerService
 
         Stop();
 
-        _playbackCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-
         try
         {
             _isPlaying = true;
             _logger.Information("AudioPlayer: Playing {Size} bytes", wavData.Length);
 
-            using var ms = new MemoryStream(wavData);
-            _soundPlayer = new SoundPlayer(ms);
+            // Create audio stream and reader
+            _audioStream = new MemoryStream(wavData);
+            _waveReader = new WaveFileReader(_audioStream);
+            _waveOut = new WaveOutEvent();
             
+            // Hook up playback stopped event
+            _waveOut.PlaybackStopped += (s, e) =>
+            {
+                _logger.Information("AudioPlayer: Playback finished");
+                if (_isPlaying)
+                {
+                    _isPlaying = false;
+                    PlaybackFinished?.Invoke(this, EventArgs.Empty);
+                }
+            };
+            
+            _waveOut.Init(_waveReader);
+            _waveOut.Play();
+            
+            // Wait for playback to complete
             await Task.Run(() =>
             {
-                _soundPlayer.PlaySync();
-            }, _playbackCts.Token);
-
-            _logger.Information("AudioPlayer: Playback finished");
+                while (_waveOut != null && _waveOut.PlaybackState == PlaybackState.Playing && !cancellationToken.IsCancellationRequested)
+                {
+                    Thread.Sleep(50);
+                }
+            }, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -58,28 +75,36 @@ public class AudioPlayerService : IAudioPlayerService
         finally
         {
             _isPlaying = false;
-            _soundPlayer?.Dispose();
-            _soundPlayer = null;
-            PlaybackFinished?.Invoke(this, EventArgs.Empty);
         }
     }
 
     public void Stop()
     {
-        if (_soundPlayer != null)
+        if (_waveOut != null)
         {
             _logger.Information("AudioPlayer: Stopping playback");
-            _playbackCts?.Cancel();
-            _soundPlayer.Stop();
-            _soundPlayer.Dispose();
-            _soundPlayer = null;
-            _isPlaying = false;
+            _waveOut.Stop();
+            _waveOut.Dispose();
+            _waveOut = null;
         }
+        
+        if (_waveReader != null)
+        {
+            _waveReader.Dispose();
+            _waveReader = null;
+        }
+        
+        if (_audioStream != null)
+        {
+            _audioStream.Dispose();
+            _audioStream = null;
+        }
+        
+        _isPlaying = false;
     }
 
     public void Dispose()
     {
         Stop();
-        _playbackCts?.Dispose();
     }
 }
