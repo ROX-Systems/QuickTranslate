@@ -44,6 +44,9 @@ public partial class SettingsViewModel : ObservableObject
     private string _model = "gpt-4o-mini";
 
     [ObservableProperty]
+    private ProviderType _providerType = ProviderType.OpenAI;
+
+    [ObservableProperty]
     private double _temperature = 0.3;
 
     [ObservableProperty]
@@ -51,6 +54,9 @@ public partial class SettingsViewModel : ObservableObject
 
     [ObservableProperty]
     private int _timeoutSeconds = 60;
+
+    // Flag to prevent update cycles
+    private bool _isUpdatingProperties = false;
 
     [ObservableProperty]
     private string _targetLanguage = "Russian";
@@ -100,6 +106,18 @@ public partial class SettingsViewModel : ObservableObject
 
     public List<ThemeInfo> AvailableColorThemes { get; } = ThemeService.AvailableThemes.Values.ToList();
 
+    public ObservableCollection<ProviderTypeInfo> AvailableProviderTypes { get; } = new()
+    {
+        new() { Type = ProviderType.OpenAI, Name = "OpenAI Compatible", Description = "OpenAI API and compatible providers (z.ai, Groq, Together, etc.)" },
+        new() { Type = ProviderType.Anthropic, Name = "Anthropic Claude", Description = "Anthropic Claude API" },
+        new() { Type = ProviderType.Google, Name = "Google Gemini", Description = "Google Gemini API" },
+        new() { Type = ProviderType.Ollama, Name = "Ollama", Description = "Local inference with Ollama" },
+        new() { Type = ProviderType.Custom, Name = "Custom", Description = "Custom provider implementation" }
+    };
+
+    [ObservableProperty]
+    private ProviderTypeInfo? _selectedProviderType;
+
     public event EventHandler? SettingsSaved;
     public event EventHandler? CloseRequested;
 
@@ -136,14 +154,16 @@ public partial class SettingsViewModel : ObservableObject
         var activeProvider = _appSettings.GetActiveProvider();
         if (activeProvider != null)
         {
+            _logger.Information("Setting active provider: {Name} (Type: {Type})", activeProvider.Name, activeProvider.Type);
             SelectedProvider = Providers.FirstOrDefault(p => p.Id == activeProvider.Id);
         }
         else if (Providers.Count > 0)
         {
+            _logger.Information("No active provider, selecting first provider");
             SelectedProvider = Providers[0];
         }
 
-        _logger.Information("Settings loaded: {Count} providers", Providers.Count);
+        _logger.Information("Settings loaded successfully with {Count} providers", Providers.Count);
     }
 
     private static string FormatHotkey(HotkeyConfig hotkey)
@@ -211,27 +231,142 @@ public partial class SettingsViewModel : ObservableObject
 
     partial void OnSelectedProviderChanged(ProviderConfig? value)
     {
-        HasSelectedProvider = value != null;
-        
+        try
+        {
+            _logger.Debug("OnSelectedProviderChanged: {Provider}", value?.Name ?? "null");
+
+            HasSelectedProvider = value != null;
+
+            if (value != null)
+            {
+                _isUpdatingProperties = true;
+
+                ProviderName = value.Name;
+
+                // Validate and fix ProviderType
+                if (!Enum.IsDefined(typeof(ProviderType), value.Type))
+                {
+                    _logger.Warning("Provider has invalid type {Type}, setting to OpenAI", value.Type);
+                    ProviderType = ProviderType.OpenAI;
+                }
+                else
+                {
+                    ProviderType = value.Type;
+                }
+
+                SelectedProviderType = AvailableProviderTypes.FirstOrDefault(p => p.Type == ProviderType);
+
+                // If type not found in list, default to OpenAI
+                if (SelectedProviderType == null)
+                {
+                    _logger.Warning("Provider type {Type} not found in available types, defaulting to OpenAI", value.Type);
+                    SelectedProviderType = AvailableProviderTypes.FirstOrDefault(p => p.Type == ProviderType.OpenAI);
+                    ProviderType = ProviderType.OpenAI;
+                }
+
+                // Only update other fields if not already updating (to prevent cycles)
+                BaseUrl = value.BaseUrl ?? "https://api.openai.com/v1";
+                ApiKey = value.ApiKey ?? string.Empty;
+                Model = value.Model ?? "gpt-4o-mini";
+                Temperature = value.Temperature >= 0 && value.Temperature <= 2 ? value.Temperature : 0.3;
+                MaxTokens = value.MaxTokens > 0 ? value.MaxTokens : 4096;
+                TimeoutSeconds = value.TimeoutSeconds > 0 && value.TimeoutSeconds <= 300 ? value.TimeoutSeconds : 60;
+
+                _isUpdatingProperties = false;
+            }
+            else
+            {
+                _isUpdatingProperties = true;
+
+                ProviderName = string.Empty;
+                ProviderType = ProviderType.OpenAI;
+                SelectedProviderType = AvailableProviderTypes.FirstOrDefault(p => p.Type == ProviderType.OpenAI);
+                BaseUrl = "https://api.openai.com/v1";
+                ApiKey = string.Empty;
+                Model = "gpt-4o-mini";
+                Temperature = 0.3;
+                MaxTokens = 4096;
+                TimeoutSeconds = 60;
+
+                _isUpdatingProperties = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error in OnSelectedProviderChanged");
+            _isUpdatingProperties = false;
+            throw;
+        }
+    }
+
+    partial void OnSelectedProviderTypeChanged(ProviderTypeInfo? value)
+    {
         if (value != null)
         {
-            ProviderName = value.Name;
-            BaseUrl = value.BaseUrl;
-            ApiKey = value.ApiKey;
-            Model = value.Model;
-            Temperature = value.Temperature;
-            MaxTokens = value.MaxTokens;
-            TimeoutSeconds = value.TimeoutSeconds;
+            ProviderType = value.Type;
         }
-        else
+    }
+
+    partial void OnProviderTypeChanged(ProviderType value)
+    {
+        try
         {
-            ProviderName = string.Empty;
-            BaseUrl = "https://api.openai.com/v1";
-            ApiKey = string.Empty;
-            Model = "gpt-4o-mini";
-            Temperature = 0.3;
-            MaxTokens = 4096;
-            TimeoutSeconds = 60;
+            // Skip if we're already updating properties from provider selection
+            if (_isUpdatingProperties)
+            {
+                _logger.Debug("OnProviderTypeChanged: Skipping (already updating)");
+                return;
+            }
+
+            // Only update defaults if we're in a clean state (loading new provider)
+            // This prevents overriding values when loading existing providers
+            _logger.Debug("OnProviderTypeChanged: {Type}", value);
+
+            // Set default values based on provider type
+            // NOTE: For OpenAI Compatible (ProviderType.OpenAI), we don't override
+            // values because users may have custom providers like z.ai with specific URLs
+            switch (value)
+            {
+                case ProviderType.OpenAI:
+                    // Don't override for OpenAI - users may have custom URLs
+                    // Only set if fields are empty
+                    if (string.IsNullOrEmpty(BaseUrl))
+                        BaseUrl = "https://api.openai.com/v1";
+                    if (string.IsNullOrEmpty(Model))
+                        Model = "gpt-4o-mini";
+                    break;
+
+                case ProviderType.Ollama:
+                    BaseUrl = "http://localhost:11434/v1";
+                    Model = "llama3";
+                    ApiKey = string.Empty; // Ollama doesn't require API key
+                    break;
+
+                case ProviderType.Anthropic:
+                    BaseUrl = "https://api.anthropic.com/v1";
+                    Model = "claude-3-haiku-20240307";
+                    break;
+
+                case ProviderType.Google:
+                    BaseUrl = "https://generativelanguage.googleapis.com/v1";
+                    Model = "gemini-pro";
+                    break;
+
+                case ProviderType.Custom:
+                    // Don't override for Custom providers
+                    break;
+
+                default:
+                    if (string.IsNullOrEmpty(BaseUrl))
+                        BaseUrl = "https://api.openai.com/v1";
+                    if (string.IsNullOrEmpty(Model))
+                        Model = "gpt-4o-mini";
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Error in OnProviderTypeChanged");
         }
     }
 
@@ -291,6 +426,7 @@ public partial class SettingsViewModel : ObservableObject
         var tempProvider = new ProviderConfig
         {
             Name = ProviderName,
+            Type = ProviderType,
             BaseUrl = BaseUrl,
             ApiKey = ApiKey,
             Model = Model,
@@ -309,6 +445,7 @@ public partial class SettingsViewModel : ObservableObject
         ValidationError = string.Empty;
 
         SelectedProvider.Name = ProviderName;
+        SelectedProvider.Type = ProviderType;
         SelectedProvider.BaseUrl = BaseUrl;
         SelectedProvider.ApiKey = ApiKey;
         SelectedProvider.Model = Model;
@@ -365,6 +502,8 @@ public partial class SettingsViewModel : ObservableObject
 
             StatusMessage = "Settings saved!";
             _logger.Information("Settings saved: {Count} providers", Providers.Count);
+            _logger.Debug("Active provider API key length: {Length} chars",
+                SelectedProvider?.ApiKey?.Length ?? 0);
 
             SettingsSaved?.Invoke(this, EventArgs.Empty);
         }
@@ -398,6 +537,9 @@ public partial class SettingsViewModel : ObservableObject
 
         IsTesting = true;
         StatusMessage = "Testing connection...";
+
+        _logger.Debug("Testing connection with API key length: {Length} chars",
+            tempProvider.ApiKey?.Length ?? 0);
 
         try
         {

@@ -36,6 +36,9 @@ public class ChatCompletionResponse
 
     [JsonPropertyName("error")]
     public ApiError? Error { get; set; }
+
+    [JsonPropertyName("data")]
+    public List<ChatChoice>? Data { get; set; }
 }
 
 public class ChatChoice

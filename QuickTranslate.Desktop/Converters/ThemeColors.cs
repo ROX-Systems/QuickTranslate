@@ -27,4 +27,19 @@ public static class ThemeColors
     /// Color used to highlight favorite items.
     /// </summary>
     public static readonly Color Favorite = Color.FromRgb(255, 193, 7);
+
+    /// <summary>
+    /// Color used to indicate provider is healthy.
+    /// </summary>
+    public static readonly Color Healthy = Color.FromRgb(76, 175, 80);
+
+    /// <summary>
+    /// Color used to indicate provider is unhealthy or degraded.
+    /// </summary>
+    public static readonly Color Unhealthy = Color.FromRgb(255, 100, 100);
+
+    /// <summary>
+    /// Color used to indicate provider status is unknown or checking.
+    /// </summary>
+    public static readonly Color Unknown = Color.FromRgb(255, 193, 7);
 }

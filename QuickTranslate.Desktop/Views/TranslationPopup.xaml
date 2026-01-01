@@ -14,7 +14,12 @@
         MaxWidth="550"
         MaxHeight="450"
         Deactivated="Window_Deactivated">
-    
+
+    <Window.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisConverter"/>
+    </Window.Resources>
+
     <Border Background="{ui:ThemeResource ApplicationBackgroundBrush}"
             BorderBrush="{ui:ThemeResource ControlStrokeColorDefaultBrush}"
             BorderThickness="1"
@@ -25,7 +30,7 @@
         <Border.Effect>
             <DropShadowEffect Color="Black" BlurRadius="20" Opacity="0.4" ShadowDepth="0"/>
         </Border.Effect>
-        
+
         <Grid MinWidth="320">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -133,9 +138,4 @@
             </Grid>
         </Grid>
     </Border>
-
-    <Window.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisConverter"/>
-        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisConverter"/>
-    </Window.Resources>
 </Window>

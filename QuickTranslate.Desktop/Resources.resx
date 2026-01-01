@@ -314,4 +314,10 @@
   <data name="Yesterday" xml:space="preserve">
     <value>Вчера</value>
   </data>
+  <data name="NetworkError" xml:space="preserve">
+    <value>Ошибка сети. Проверьте подключение к интернету и попробуйте снова.</value>
+  </data>
+  <data name="TimeoutError" xml:space="preserve">
+    <value>Таймаут соединения. Попробуйте снова или увеличьте таймаут в настройках.</value>
+  </data>
 </root>

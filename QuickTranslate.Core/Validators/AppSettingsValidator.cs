@@ -38,10 +38,6 @@ public class AppSettingsValidator : AbstractValidator<AppSettings>
         RuleFor(x => x.TtsEndpoint)
             .NotEmpty().WithMessage("TTS endpoint is required")
             .Must(BeValidUrl).WithMessage("TTS endpoint must be a valid URL");
-
-        RuleFor(x => x.TimeoutSeconds)
-            .GreaterThanOrEqualTo(1).WithMessage("Timeout must be at least 1 second")
-            .LessThanOrEqualTo(300).WithMessage("Timeout must not exceed 300 seconds");
     }
 
     private static bool HaveAtLeastOneValidProvider(List<ProviderConfig> providers)
@@ -65,7 +61,7 @@ public class AppSettingsValidator : AbstractValidator<AppSettings>
         return ValidProfiles.Contains(profile);
     }
 
-    private static bool BeValidUrl(string url)
+    private static bool BeValidUrl(string? url)
     {
         return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
             && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);

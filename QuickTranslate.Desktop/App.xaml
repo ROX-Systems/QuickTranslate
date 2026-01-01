@@ -18,6 +18,7 @@
             <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
             <converters:ProfileNameConverter x:Key="ProfileNameConverter"/>
             <converters:SpeakingColorConverter x:Key="SpeakingColorConverter"/>
+            <converters:HealthStatusToColorConverter x:Key="HealthStatusToColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

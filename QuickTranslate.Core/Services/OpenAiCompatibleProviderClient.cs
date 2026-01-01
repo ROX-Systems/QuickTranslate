@@ -10,7 +10,11 @@ using Serilog;
 
 namespace QuickTranslate.Core.Services;
 
-public class OpenAiProviderClient : IProviderClient, IDisposable
+/// <summary>
+/// Universal client for OpenAI-compatible providers
+/// Supports: OpenAI, z.ai, Groq, Together, Ollama, and other OpenAI-compatible APIs
+/// </summary>
+public class OpenAiCompatibleProviderClient : IProviderClient, IDisposable
 {
     private readonly IHttpClientFactory? _httpClientFactory;
     private HttpClient? _ownedHttpClient;
@@ -20,11 +24,11 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
 
     public ProviderConfig? CurrentProvider => _provider;
 
-    public OpenAiProviderClient(ProviderConfig? provider = null, IHttpClientFactory? httpClientFactory = null)
+    public OpenAiCompatibleProviderClient(ProviderConfig? provider = null, IHttpClientFactory? httpClientFactory = null)
     {
         _provider = provider ?? new ProviderConfig();
         _httpClientFactory = httpClientFactory;
-        _logger = Log.ForContext<OpenAiProviderClient>();
+        _logger = Log.ForContext<OpenAiCompatibleProviderClient>();
 
         _retryPolicy = CreateRetryPolicy();
 
@@ -68,11 +72,12 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
     {
         if (_httpClientFactory != null)
         {
-            var client = _httpClientFactory.CreateClient("OpenAI");
+            // Create a client without naming to avoid hardcoded configurations
+            var client = _httpClientFactory.CreateClient();
             client.Timeout = TimeSpan.FromSeconds(_provider.TimeoutSeconds);
             return client;
         }
-        
+
         return _ownedHttpClient ?? throw new InvalidOperationException("HttpClient not initialized");
     }
 
@@ -88,14 +93,14 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
     public void UpdateProvider(ProviderConfig provider)
     {
         _provider = provider;
-        
+
         if (_httpClientFactory == null && _ownedHttpClient != null)
         {
             _ownedHttpClient.Dispose();
             _ownedHttpClient = CreateHttpClient();
         }
-        
-        _logger.Information("Provider updated: {Name}", provider.Name);
+
+        _logger.Information("Provider updated: {Name} ({Type})", provider.Name, provider.Type);
     }
 
     public async Task<TranslationResult> SendTranslationRequestAsync(
@@ -103,12 +108,33 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
         string userPrompt,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(_provider.ApiKey))
+        try
         {
-            return TranslationResult.FromError("API key not configured. Please set up a provider in Settings.");
-        }
+            if (string.IsNullOrEmpty(_provider.ApiKey))
+            {
+                return TranslationResult.FromError("API key not configured. Please set up a provider in Settings.");
+            }
 
-        var request = new ChatCompletionRequest
+            var request = BuildChatCompletionRequest(systemPrompt, userPrompt);
+            var endpoint = BuildEndpoint();
+
+            return await SendRequestAsync(endpoint, request, cancellationToken);
+        }
+        catch (TaskCanceledException)
+        {
+            _logger.Warning("Translation request was cancelled");
+            return TranslationResult.FromError("Request was cancelled");
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Translation failed");
+            return TranslationResult.FromError($"Error: {ex.Message}");
+        }
+    }
+
+    private ChatCompletionRequest BuildChatCompletionRequest(string systemPrompt, string userPrompt)
+    {
+        return new ChatCompletionRequest
         {
             Model = _provider.Model,
             Temperature = _provider.Temperature,
@@ -119,35 +145,20 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
                 new() { Role = "user", Content = userPrompt }
             }
         };
-
-        var baseUrl = _provider.BaseUrl.TrimEnd('/');
-        var endpoint = baseUrl.EndsWith("/chat/completions", StringComparison.OrdinalIgnoreCase)
-            ? baseUrl
-            : $"{baseUrl}/chat/completions";
-
-        return await ExecuteWithRetryAsync(endpoint, request, cancellationToken);
     }
 
-    private async Task<TranslationResult> ExecuteWithRetryAsync(
-        string endpoint,
-        ChatCompletionRequest request,
-        CancellationToken cancellationToken)
+    private string BuildEndpoint()
     {
-        try
+        var baseUrl = _provider.BaseUrl.TrimEnd('/');
+
+        // If URL already ends with the full endpoint, use it as-is
+        if (baseUrl.EndsWith("/chat/completions", StringComparison.OrdinalIgnoreCase))
         {
-            var result = await SendRequestAsync(endpoint, request, cancellationToken);
-            return result;
+            return baseUrl;
         }
-        catch (TaskCanceledException)
-        {
-            _logger.Warning("Translation request was cancelled");
-            return TranslationResult.FromError("Request was cancelled");
-        }
-        catch (Exception ex)
-        {
-            _logger.Error(ex, "Translation failed after all retry attempts");
-            return TranslationResult.FromError($"Error: {ex.Message}");
-        }
+
+        // For OpenAI-compatible APIs, append /chat/completions
+        return $"{baseUrl}/chat/completions";
     }
 
     private async Task<TranslationResult> SendRequestAsync(
@@ -158,17 +169,13 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
         var httpClient = GetHttpClient();
 
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
-        httpRequest.Headers.Add("Authorization", $"Bearer {_provider.ApiKey}");
+        AddAuthorizationHeader(httpRequest);
 
         var jsonContent = JsonSerializer.Serialize(request);
         httpRequest.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-        _logger.Information("=== API REQUEST ===");
-        _logger.Information("Endpoint: {Endpoint}", endpoint);
-        _logger.Information("Model: {Model}", request.Model);
-        _logger.Information("Messages count: {Count}", request.Messages?.Count ?? 0);
-        _logger.Information("Request payload: {Json}", jsonContent);
-        _logger.Information("==================");
+        _logger.Debug("Sending translation request to {Endpoint} for model {Model}", endpoint, _provider.Model);
+        _logger.Debug("Request payload: {Json}", jsonContent);
 
         HttpResponseMessage response = await _retryPolicy.ExecuteAsync(async ct =>
         {
@@ -177,16 +184,14 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
 
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        _logger.Information("=== API RESPONSE ===");
-        _logger.Information("Status: {StatusCode}", response.StatusCode);
-        _logger.Information("Response length: {Length} chars", responseBody?.Length ?? 0);
-        _logger.Information("Raw API response: {Body}", responseBody);
-        _logger.Information("=====================");
+        _logger.Debug("API response status: {StatusCode}", response.StatusCode);
+        _logger.Debug("API response length: {Length} chars", responseBody?.Length ?? 0);
+        _logger.Debug("Raw API response: {Body}", responseBody);
 
         if (!response.IsSuccessStatusCode)
         {
             _logger.Error("API request failed: {StatusCode} - {Body}", response.StatusCode, responseBody);
-            return TranslationResult.FromError($"API Error: {response.StatusCode} - {responseBody}");
+            return TranslationResult.FromError($"API Error ({response.StatusCode}): {GetErrorMessage(responseBody)}");
         }
 
         var chatResponse = JsonSerializer.Deserialize<ChatCompletionResponse>(responseBody);
@@ -206,31 +211,54 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
         }
 
         var choices = chatResponse.Choices ?? chatResponse.Data;
-        var choicesCount = choices?.Count ?? 0;
-        var firstChoice = choices?.FirstOrDefault();
-        var message = firstChoice?.Message;
-
-        _logger.Information("Response structure:");
-        _logger.Information("  - Choices (via 'choices' field): {Count}", chatResponse.Choices?.Count ?? 0);
-        _logger.Information("  - Data (via 'data' field): {Count}", chatResponse.Data?.Count ?? 0);
-        _logger.Information("  - Choices count: {Count}", choicesCount);
-        _logger.Information("  - First choice exists: {Exists}", firstChoice != null);
-        _logger.Information("  - Message exists: {Exists}", message != null);
-        _logger.Information("  - Content length: {Length} chars", message?.Content?.Length ?? 0);
-
         var translatedText = choices?.FirstOrDefault()?.Message?.Content;
 
         if (string.IsNullOrEmpty(translatedText))
         {
             _logger.Warning("API response contained no translated text");
-            _logger.Warning("Choices: {@Choices}", chatResponse.Choices);
-            _logger.Warning("Data: {@Data}", chatResponse.Data);
-            _logger.Warning("Raw response: {Body}", responseBody);
+            _logger.Warning("Choices (via 'choices' field): {Count}", chatResponse.Choices?.Count ?? 0);
+            _logger.Warning("Data (via 'data' field): {Count}", chatResponse.Data?.Count ?? 0);
+            _logger.Warning("Raw API response: {Body}", responseBody);
             return TranslationResult.FromError("Empty response from API");
         }
 
-        _logger.Information("✓ Translation completed successfully ({Length} chars)", translatedText.Length);
+        _logger.Debug("Translation completed successfully");
         return TranslationResult.FromSuccess(translatedText.Trim());
+    }
+
+    private void AddAuthorizationHeader(HttpRequestMessage request)
+    {
+        // OpenAI and compatible providers use Bearer token
+        if (_provider.Type == ProviderType.OpenAI || _provider.Type == ProviderType.Ollama)
+        {
+            // Ollama doesn't require authentication by default
+            if (!string.IsNullOrEmpty(_provider.ApiKey))
+            {
+                request.Headers.Add("Authorization", $"Bearer {_provider.ApiKey}");
+            }
+        }
+        // Future support for other providers
+        // Anthropic, Google, etc. can be added here
+    }
+
+    private static string GetErrorMessage(string responseBody)
+    {
+        try
+        {
+            using var jsonDoc = JsonDocument.Parse(responseBody);
+            if (jsonDoc.RootElement.TryGetProperty("error", out var error))
+            {
+                if (error.TryGetProperty("message", out var message))
+                {
+                    return message.GetString() ?? responseBody;
+                }
+            }
+            return responseBody;
+        }
+        catch
+        {
+            return responseBody;
+        }
     }
 
     public void Dispose()

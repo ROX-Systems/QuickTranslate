@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace QuickTranslate.Desktop.Converters;
 
@@ -165,6 +166,29 @@ public class ZeroToVisibilityConverter : IValueConverter
         if (value is int count)
             return count == 0 ? Visibility.Visible : Visibility.Collapsed;
         return Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class HealthStatusToColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is HealthStatus status)
+        {
+            return status switch
+            {
+                HealthStatus.Healthy => new SolidColorBrush(ThemeColors.Healthy),
+                HealthStatus.Degraded => new SolidColorBrush(ThemeColors.Unknown),
+                HealthStatus.Unhealthy => new SolidColorBrush(ThemeColors.Unhealthy),
+                _ => new SolidColorBrush(ThemeColors.Unknown)
+            };
+        }
+        return new SolidColorBrush(ThemeColors.Unknown);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

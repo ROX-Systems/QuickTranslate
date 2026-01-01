@@ -4,6 +4,7 @@ public class ProviderConfig
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public string Name { get; set; } = "New Provider";
+    public ProviderType Type { get; set; } = ProviderType.OpenAI;
     public string BaseUrl { get; set; } = "https://api.openai.com/v1";
     public string ApiKey { get; set; } = string.Empty;
     public string Model { get; set; } = "gpt-4o-mini";
@@ -15,6 +16,7 @@ public class ProviderConfig
     {
         Id = Id,
         Name = Name,
+        Type = Type,
         BaseUrl = BaseUrl,
         ApiKey = ApiKey,
         Model = Model,

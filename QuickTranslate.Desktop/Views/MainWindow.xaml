@@ -323,7 +323,11 @@
             
             <!-- Provider Info -->
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <ui:SymbolIcon Symbol="Bot24" 
+                <Ellipse Width="8" Height="8"
+                         Fill="{Binding ProviderHealthStatus, Converter={StaticResource HealthStatusToColorConverter}}"
+                         Margin="0,0,6,0"
+                         ToolTip="Provider Health Status"/>
+                <ui:SymbolIcon Symbol="Bot24"
                                Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
                                FontSize="14"
                                Margin="0,0,6,0"/>
@@ -331,6 +335,10 @@
                            Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
                            FontSize="12"
                            VerticalAlignment="Center"/>
+                <ui:ProgressRing Width="16" Height="16"
+                                   IsIndeterminate="{Binding IsCheckingHealth}"
+                                   Margin="6,0,0,0"
+                                   Visibility="{Binding IsCheckingHealth, Converter={StaticResource BoolToVis}}"/>
             </StackPanel>
             
             <!-- Status Message -->

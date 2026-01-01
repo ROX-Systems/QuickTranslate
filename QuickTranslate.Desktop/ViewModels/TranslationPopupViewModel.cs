@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using QuickTranslate.Core.Interfaces;
+using QuickTranslate.Desktop.Services.Interfaces;
 
 namespace QuickTranslate.Desktop.ViewModels;
 

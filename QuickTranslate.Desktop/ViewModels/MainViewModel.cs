@@ -1,6 +1,9 @@
 using System.Collections.ObjectModel;
+using System.Net.Http;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using QuickTranslate.Core.Factories;
 using QuickTranslate.Core.Interfaces;
 using QuickTranslate.Core.Models;
 using QuickTranslate.Core.Services;
@@ -15,10 +18,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly ITranslationService _translationService;
     private readonly ISettingsStore _settingsStore;
     private readonly IProviderClient _providerClient;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly IClipboardService _clipboardService;
     private readonly ITtsService _ttsService;
     private readonly IAudioPlayerService _audioPlayerService;
     private readonly ITranslationHistoryService _historyService;
+    private readonly IHealthCheckService _healthCheckService;
     private readonly ILogger _logger;
 
     private CancellationTokenSource? _cancellationTokenSource;
@@ -62,6 +67,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _canSpeak;
 
+    [ObservableProperty]
+    private HealthStatus _providerHealthStatus = HealthStatus.Healthy;
+
+    [ObservableProperty]
+    private bool _isCheckingHealth;
+
     public string[] AvailableLanguages { get; } = { "Russian", "English", "German", "French", "Spanish", "Chinese", "Japanese", "Korean" };
 
     public int SourceCharacterCount => SourceText?.Length ?? 0;
@@ -74,23 +85,28 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ITranslationService translationService,
         ISettingsStore settingsStore,
         IProviderClient providerClient,
+        IHttpClientFactory httpClientFactory,
         IClipboardService clipboardService,
         ITtsService ttsService,
         IAudioPlayerService audioPlayerService,
-        ITranslationHistoryService historyService)
+        ITranslationHistoryService historyService,
+        IHealthCheckService healthCheckService)
     {
         _translationService = translationService;
         _settingsStore = settingsStore;
         _providerClient = providerClient;
+        _httpClientFactory = httpClientFactory;
         _clipboardService = clipboardService;
         _ttsService = ttsService;
         _audioPlayerService = audioPlayerService;
         _historyService = historyService;
+        _healthCheckService = healthCheckService;
         _logger = Log.ForContext<MainViewModel>();
 
         _audioPlayerService.PlaybackFinished += OnPlaybackFinished;
 
         LoadSettings();
+        CheckProviderHealthAsync().ConfigureAwait(false);
     }
 
     private void OnPlaybackFinished(object? sender, EventArgs e)
@@ -119,21 +135,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
         SelectedProfile = TranslationProfiles.FirstOrDefault(p => p.Id == settings.ActiveProfileId) 
                           ?? TranslationProfiles.FirstOrDefault();
         UseAutoProfileDetection = settings.UseAutoProfileDetection;
-    }
-
-    partial void OnSelectedProviderChanged(ProviderConfig? value)
-    {
-        if (value != null)
-        {
-            _providerClient.UpdateProvider(value);
-            
-            var settings = _settingsStore.Load();
-            settings.ActiveProviderId = value.Id;
-            _settingsStore.Save(settings);
-            
-            StatusMessage = $"Provider: {value.Name}";
-            _logger.Information("Active provider changed to: {Name}", value.Name);
-        }
     }
 
     [RelayCommand]
@@ -208,6 +209,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
         catch (TaskCanceledException)
         {
             StatusMessage = LocalizationService.Instance["Cancelled"];
+        }
+        catch (HttpRequestException ex) when (ex.InnerException is TimeoutException)
+        {
+            _logger.Warning(ex, "Translation timeout");
+            ShowError(LocalizationService.Instance["TimeoutError"]);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.Warning(ex, "Network error during translation");
+            ShowError(LocalizationService.Instance["NetworkError"]);
         }
         catch (Exception ex)
         {
@@ -376,6 +387,58 @@ public partial class MainViewModel : ObservableObject, IDisposable
         catch (Exception ex)
         {
             _logger.Warning(ex, "Failed to save translation to history");
+        }
+    }
+
+    [RelayCommand]
+    private async Task CheckProviderHealthAsync()
+    {
+        if (SelectedProvider == null || IsCheckingHealth)
+            return;
+
+        IsCheckingHealth = true;
+
+        try
+        {
+            var result = await _healthCheckService.CheckProviderHealthAsync(SelectedProvider);
+            ProviderHealthStatus = result.Status;
+
+            if (result.Status == HealthStatus.Healthy)
+            {
+                StatusMessage = "Provider is healthy";
+            }
+            else
+            {
+                StatusMessage = $"Provider health check failed: {result.Description}";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Provider health check failed");
+            ProviderHealthStatus = HealthStatus.Unhealthy;
+            StatusMessage = "Health check failed";
+        }
+        finally
+        {
+            IsCheckingHealth = false;
+        }
+    }
+
+    partial void OnSelectedProviderChanged(ProviderConfig? value)
+    {
+        if (value != null)
+        {
+            _providerClient.UpdateProvider(value);
+
+            var settings = _settingsStore.Load();
+            settings.ActiveProviderId = value.Id;
+            _settingsStore.Save(settings);
+
+            StatusMessage = $"Provider: {value.Name}";
+            _logger.Information("Active provider changed to: {Name}", value.Name);
+
+            // Check health when provider changes
+            CheckProviderHealthAsync().ConfigureAwait(false);
         }
     }
 

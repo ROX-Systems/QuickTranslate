@@ -28,7 +28,12 @@ public partial class MainWindow : FluentWindow
         _clipboardService = clipboardService;
         _settingsStore = settingsStore;
         _logger = Log.ForContext<MainWindow>();
-        
+
+        _logger.Information("╔════════════════════════════════════════╗");
+        _logger.Information("║  QuickTranslate v1.0.6 (DEBUG LOGGING)    ║");
+        _logger.Information("╚════════════════════════════════════════╝");
+        _logger.Information("✓ Detailed API logging is ENABLED");
+
         DataContext = _viewModel;
         
         Loaded += MainWindow_Loaded;
@@ -70,11 +75,12 @@ public partial class MainWindow : FluentWindow
     {
         var helper = new WindowInteropHelper(this);
         _hotkeyService.Initialize(helper.Handle);
-        
+
         RegisterHotkeysFromSettings();
-        
+
         _hotkeyService.HotkeyPressed += OnHotkeyPressed;
-        
+
+        Title = "QuickTranslate v1.0.6 [DEBUG]";
         _logger.Information("Main window loaded and hotkeys registered");
     }
 
@@ -98,29 +104,44 @@ public partial class MainWindow : FluentWindow
     private async void OnHotkeyPressed(object? sender, HotkeyEventArgs e)
     {
         _logger.Information("Hotkey received: {Action}", e.Action);
-        
+
         switch (e.Action)
         {
             case HotkeyAction.TranslateSelection:
+                _logger.Information("Starting TranslateSelection");
                 // Capture selected text using the foreground window captured at hotkey press time
                 var selectedText = await _clipboardService.GetSelectedTextAsync(e.ForegroundWindow);
+                _logger.Information("Selected text length: {Length}", selectedText?.Length ?? 0);
                 if (!string.IsNullOrWhiteSpace(selectedText))
                 {
+                    _logger.Information("Text is not empty, starting translation");
                     await Dispatcher.InvokeAsync(async () =>
                     {
-                        var popup = App.GetService<TranslationPopup>();
-                        popup.SetLoading();
-                        popup.ShowAtCursor();
-
-                        var result = await _viewModel.TranslateForPopupAsync(selectedText);
-
-                        if (result.Success && result.Translation != null)
+                        try
                         {
-                            popup.SetTranslation(result.Translation);
+                            _logger.Information("Getting TranslationPopup instance on UI thread");
+                            var popup = App.GetService<TranslationPopup>();
+                            _logger.Information("Setting loading state");
+                            popup.SetLoading();
+                            _logger.Information("Showing popup at cursor");
+                            popup.ShowAtCursor();
+                            _logger.Information("Starting translation via TranslateForPopupAsync");
+
+                            var result = await _viewModel.TranslateForPopupAsync(selectedText);
+                            _logger.Information("Translation result: Success={Success}, HasTranslation={HasTranslation}", result.Success, result.Translation != null);
+
+                            if (result.Success && result.Translation != null)
+                            {
+                                popup.SetTranslation(result.Translation);
+                            }
+                            else
+                            {
+                                popup.SetError(result.Error ?? "Translation failed");
+                            }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            popup.SetError(result.Error ?? "Translation failed");
+                            _logger.Error(ex, "Error during TranslateSelection on UI thread");
                         }
                     });
                 }
@@ -194,12 +215,27 @@ public partial class MainWindow : FluentWindow
 
     private void Settings_Click(object sender, RoutedEventArgs e)
     {
-        var settingsWindow = App.GetService<SettingsWindow>();
-        settingsWindow.Owner = this;
-        settingsWindow.ShowDialog();
-        
-        _viewModel.LoadSettings();
-        RegisterHotkeysFromSettings();
+        try
+        {
+            _logger.Information("Opening settings window");
+
+            var settingsWindow = App.GetService<SettingsWindow>();
+            settingsWindow.Owner = this;
+            settingsWindow.ShowDialog();
+
+            _logger.Information("Settings window closed");
+            _viewModel.LoadSettings();
+            RegisterHotkeysFromSettings();
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Failed to open settings window");
+            System.Windows.MessageBox.Show(
+                $"Failed to open settings:\n\n{ex.Message}\n\nDetails:\n{ex}",
+                "Settings Error",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error);
+        }
     }
 
     private void History_Click(object sender, RoutedEventArgs e)
@@ -219,7 +255,7 @@ public partial class MainWindow : FluentWindow
         catch (Exception ex)
         {
             _logger.Error(ex, "Failed to open history window");
-            System.Windows.MessageBox.Show($"Error: {ex.Message}\n\n{ex.StackTrace}", "History Error", 
+            System.Windows.MessageBox.Show($"Error: {ex.Message}\n\n{ex.StackTrace}", "History Error",
                 System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
     }

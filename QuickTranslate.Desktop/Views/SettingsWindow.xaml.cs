@@ -12,13 +12,57 @@ public partial class SettingsWindow : FluentWindow
 
     public SettingsWindow(SettingsViewModel viewModel)
     {
-        InitializeComponent();
-        
-        _viewModel = viewModel;
-        DataContext = _viewModel;
-        
-        _viewModel.SettingsSaved += (s, e) => Close();
-        _viewModel.CloseRequested += (s, e) => Close();
+        try
+        {
+            System.Diagnostics.Debug.WriteLine("SettingsWindow: Starting initialization");
+
+            InitializeComponent();
+
+            System.Diagnostics.Debug.WriteLine("SettingsWindow: InitializeComponent completed");
+
+            _viewModel = viewModel;
+            DataContext = _viewModel;
+
+            System.Diagnostics.Debug.WriteLine("SettingsWindow: ViewModel assigned");
+
+            _viewModel.SettingsSaved += (s, e) => Close();
+            _viewModel.CloseRequested += (s, e) => Close();
+
+            System.Diagnostics.Debug.WriteLine("SettingsWindow: Event handlers assigned");
+
+            // Initialize API key box
+            ApiKeyBox.Password = _viewModel.ApiKey ?? string.Empty;
+
+            System.Diagnostics.Debug.WriteLine("SettingsWindow: API key box initialized");
+
+            // Update API key box when provider changes
+            _viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(_viewModel.ApiKey))
+                {
+                    ApiKeyBox.Password = _viewModel.ApiKey ?? string.Empty;
+                }
+                else if (e.PropertyName == nameof(_viewModel.SelectedProvider))
+                {
+                    // Update password box when provider selection changes
+                    ApiKeyBox.Password = _viewModel.ApiKey ?? string.Empty;
+                }
+            };
+
+            System.Diagnostics.Debug.WriteLine("SettingsWindow: Initialization completed successfully");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"SettingsWindow: ERROR - {ex.Message}\n{ex.StackTrace}");
+
+            System.Windows.MessageBox.Show(
+                $"Failed to initialize settings window:\n\n{ex.Message}\n\nDetails:\n{ex}",
+                "Settings Error",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error);
+
+            throw;
+        }
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e)
@@ -89,7 +133,7 @@ public partial class SettingsWindow : FluentWindow
 
     private void ResetHotkey_Click(object sender, RoutedEventArgs e)
     {
-        var button = (Wpf.Ui.Controls.Button)sender;
+        var button = (System.Windows.Controls.Button)sender;
         var hotkeyName = button.Tag?.ToString();
 
         if (hotkeyName == "TranslateSelection")
@@ -99,6 +143,14 @@ public partial class SettingsWindow : FluentWindow
         else if (hotkeyName == "ShowHide")
         {
             _viewModel.SetShowHideHotkey(0x0006, 0x4F); // Ctrl+Shift+O
+        }
+    }
+
+    private void ApiKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.PasswordBox passwordBox)
+        {
+            _viewModel.ApiKey = passwordBox.Password;
         }
     }
 }

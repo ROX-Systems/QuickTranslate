@@ -91,16 +91,27 @@ public class SettingsStore : ISettingsStore
                 ActiveProfileId = stored.ActiveProfileId ?? "general",
                 UseAutoProfileDetection = stored.UseAutoProfileDetection,
                 TtsEndpoint = stored.TtsEndpoint,
-                Providers = stored.Providers?.Select(sp => new ProviderConfig
+                Providers = stored.Providers?.Select(sp =>
                 {
-                    Id = sp.Id ?? Guid.NewGuid().ToString(),
-                    Name = sp.Name ?? "Provider",
-                    BaseUrl = sp.BaseUrl ?? "https://api.openai.com/v1",
-                    Model = sp.Model ?? "gpt-4o-mini",
-                    Temperature = sp.Temperature,
-                    MaxTokens = sp.MaxTokens,
-                    TimeoutSeconds = sp.TimeoutSeconds,
-                    ApiKey = DecryptApiKey(sp.EncryptedApiKey)
+                    // Validate and fix ProviderType
+                    if (!Enum.IsDefined(typeof(ProviderType), sp.Type))
+                    {
+                        _logger.Warning("Provider {Name} has invalid type {Type}, setting to OpenAI", sp.Name, sp.Type);
+                        sp.Type = ProviderType.OpenAI;
+                    }
+
+                    return new ProviderConfig
+                    {
+                        Id = sp.Id ?? Guid.NewGuid().ToString(),
+                        Name = sp.Name ?? "Provider",
+                        Type = sp.Type, // Load type from stored settings
+                        BaseUrl = sp.BaseUrl ?? "https://api.openai.com/v1",
+                        Model = sp.Model ?? "gpt-4o-mini",
+                        Temperature = sp.Temperature,
+                        MaxTokens = sp.MaxTokens,
+                        TimeoutSeconds = sp.TimeoutSeconds,
+                        ApiKey = DecryptApiKey(sp.EncryptedApiKey)
+                    };
                 }).ToList() ?? new List<ProviderConfig>(),
                 TranslateSelectionHotkey = stored.TranslateSelectionHotkey != null
                     ? new HotkeyConfig(stored.TranslateSelectionHotkey.Modifiers, stored.TranslateSelectionHotkey.Key)
@@ -201,6 +212,7 @@ public class SettingsStore : ISettingsStore
         {
             Id = Guid.NewGuid().ToString(),
             Name = "OpenAI",
+            Type = ProviderType.OpenAI,
             BaseUrl = "https://api.openai.com/v1",
             Model = "gpt-4o-mini",
             Temperature = 0.3,
@@ -269,6 +281,7 @@ public class SettingsStore : ISettingsStore
     {
         public string? Id { get; set; }
         public string? Name { get; set; }
+        public ProviderType Type { get; set; } = ProviderType.OpenAI;
         public string? BaseUrl { get; set; }
         public string? EncryptedApiKey { get; set; }
         public string? Model { get; set; }

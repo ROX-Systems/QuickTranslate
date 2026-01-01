@@ -11,14 +11,18 @@ public class ProviderConfigValidator : AbstractValidator<ProviderConfig>
             .NotEmpty().WithMessage("Provider name is required")
             .MaximumLength(100).WithMessage("Provider name must not exceed 100 characters");
 
+        RuleFor(x => x.Type)
+            .IsInEnum().WithMessage("Invalid provider type");
+
         RuleFor(x => x.BaseUrl)
             .NotEmpty().WithMessage("Base URL is required")
-            .Must(BeValidUrl).WithMessage("Base URL must be a valid URL")
-            .Must(EndsWithVersionPath).WithMessage("Base URL should end with version path (e.g., /v1)");
+            .Must(BeValidUrl).WithMessage("Base URL must be a valid URL (e.g., https://api.openai.com/v1)");
 
         RuleFor(x => x.ApiKey)
-            .NotEmpty().WithMessage("API key is required")
-            .MinimumLength(10).WithMessage("API key must be at least 10 characters long");
+            .Must((provider, key) => provider.Type == ProviderType.Ollama || !string.IsNullOrEmpty(key))
+            .WithMessage("API key is required for this provider type")
+            .MinimumLength(10).WithMessage("API key must be at least 10 characters long")
+            .When(x => x.Type != ProviderType.Ollama);
 
         RuleFor(x => x.Model)
             .NotEmpty().WithMessage("Model name is required")
@@ -40,10 +44,5 @@ public class ProviderConfigValidator : AbstractValidator<ProviderConfig>
     {
         return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
             && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
-    }
-
-    private static bool EndsWithVersionPath(string url)
-    {
-        return url.TrimEnd('/').EndsWith("/v1", StringComparison.OrdinalIgnoreCase);
     }
 }

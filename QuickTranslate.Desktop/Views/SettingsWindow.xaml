@@ -96,8 +96,23 @@
                 <StackPanel IsEnabled="{Binding HasSelectedProvider}">
                     <!-- Provider Name -->
                     <TextBlock Text="{Binding [ProviderName], Source={x:Static local:Loc.Instance}}" Style="{StaticResource FieldLabel}"/>
-                    <TextBox Text="{Binding ProviderName, UpdateSourceTrigger=PropertyChanged}" 
+                    <TextBox Text="{Binding ProviderName, UpdateSourceTrigger=PropertyChanged}"
                              Margin="0,0,0,12"/>
+
+                    <!-- Provider Type -->
+                    <TextBlock Text="Provider Type" Style="{StaticResource FieldLabel}"/>
+                    <ComboBox ItemsSource="{Binding AvailableProviderTypes}"
+                              SelectedItem="{Binding SelectedProviderType}"
+                              Margin="0,0,0,12">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Description}" FontSize="11" Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
 
                     <!-- Base URL -->
                     <TextBlock Text="{Binding [BaseUrl], Source={x:Static local:Loc.Instance}}" Style="{StaticResource FieldLabel}"/>
@@ -106,7 +121,8 @@
 
                     <!-- API Key -->
                     <TextBlock Text="{Binding [ApiKey], Source={x:Static local:Loc.Instance}}" Style="{StaticResource FieldLabel}"/>
-                    <PasswordBox x:Name="ApiKeyBox" 
+                    <PasswordBox x:Name="ApiKeyBox"
+                                 PasswordChanged="ApiKeyBox_PasswordChanged"
                                  Margin="0,0,0,12"/>
 
                     <!-- Model -->
