@@ -108,12 +108,12 @@ public partial class MainWindow : FluentWindow
                 {
                     await Dispatcher.InvokeAsync(async () =>
                     {
-                        var popup = new TranslationPopup();
+                        var popup = App.GetService<TranslationPopup>();
                         popup.SetLoading();
                         popup.ShowAtCursor();
-                        
+
                         var result = await _viewModel.TranslateForPopupAsync(selectedText);
-                        
+
                         if (result.Success && result.Translation != null)
                         {
                             popup.SetTranslation(result.Translation);

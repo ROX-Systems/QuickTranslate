@@ -78,6 +78,7 @@ public class ClipboardService : IClipboardService
             IDataObject? previousClipboardData = null;
             string? previousText = null;
             bool hadText = false;
+            bool backupSuccess = false;
 
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
@@ -87,16 +88,19 @@ public class ClipboardService : IClipboardService
                     {
                         hadText = true;
                         previousText = Clipboard.GetText();
+                        _logger.Debug("Backed up text from clipboard: {Length} chars", previousText?.Length ?? 0);
                     }
                     else
                     {
                         previousClipboardData = Clipboard.GetDataObject();
+                        _logger.Debug("Backed up non-text data from clipboard");
                     }
-                    Clipboard.Clear();
+                    backupSuccess = true;
                 }
                 catch (Exception ex)
                 {
-                    _logger.Warning(ex, "Failed to backup clipboard");
+                    _logger.Error(ex, "Failed to backup clipboard - clipboard may be corrupted");
+                    backupSuccess = false;
                 }
             });
 
@@ -167,24 +171,33 @@ public class ClipboardService : IClipboardService
 
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
+                if (!backupSuccess)
+                {
+                    _logger.Warning("Skipping clipboard restore due to backup failure");
+                    return;
+                }
+
                 try
                 {
                     if (hadText && previousText != null)
                     {
                         Clipboard.SetText(previousText);
+                        _logger.Debug("Restored text to clipboard: {Length} chars", previousText.Length);
                     }
                     else if (previousClipboardData != null)
                     {
                         Clipboard.SetDataObject(previousClipboardData, true);
+                        _logger.Debug("Restored non-text data to clipboard");
                     }
                     else
                     {
                         Clipboard.Clear();
+                        _logger.Debug("Cleared clipboard (was empty)");
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.Warning(ex, "Failed to restore clipboard");
+                    _logger.Error(ex, "Failed to restore clipboard - original clipboard content may be lost");
                 }
             });
 
@@ -238,5 +251,16 @@ public class ClipboardService : IClipboardService
             _logger.Error(ex, "Failed to get clipboard text");
             return null;
         }
+    }
+
+    public void CopyToClipboard(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            _logger.Warning("Attempted to copy empty text to clipboard");
+            return;
+        }
+
+        SetText(text);
     }
 }

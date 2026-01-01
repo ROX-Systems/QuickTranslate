@@ -8,6 +8,7 @@ using QuickTranslate.Desktop.Services;
 using QuickTranslate.Desktop.Services.Interfaces;
 using QuickTranslate.Desktop.ViewModels;
 using QuickTranslate.Desktop.Views;
+using TranslationPopup = QuickTranslate.Desktop.Views.TranslationPopup;
 using Serilog;
 
 namespace QuickTranslate.Desktop;
@@ -72,7 +73,12 @@ public partial class App : Application
         });
 
         services.AddSingleton<ITranslationService, TranslationService>();
-        services.AddSingleton<ITtsService, PiperTtsService>();
+        services.AddSingleton<ITtsService>(sp =>
+        {
+            var store = sp.GetRequiredService<ISettingsStore>();
+            var settings = store.Load();
+            return new PiperTtsService(settings.TtsEndpoint);
+        });
 
         services.AddSingleton<IHotkeyService, HotkeyService>();
         services.AddSingleton<IClipboardService, ClipboardService>();
@@ -85,6 +91,7 @@ public partial class App : Application
         services.AddSingleton<MainWindow>();
         services.AddTransient<SettingsWindow>();
         services.AddTransient<HistoryWindow>();
+        services.AddTransient<TranslationPopup>();
 
         _serviceProvider = services.BuildServiceProvider();
     }

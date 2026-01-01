@@ -10,7 +10,7 @@ using Serilog;
 
 namespace QuickTranslate.Desktop.ViewModels;
 
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly ITranslationService _translationService;
     private readonly ISettingsStore _settingsStore;
@@ -281,12 +281,13 @@ public partial class MainViewModel : ObservableObject
 
     public async Task<(bool Success, string? Translation, string? Error)> TranslateForPopupAsync(string text)
     {
+        var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
         try
         {
             var settings = _settingsStore.Load();
             var profiles = TranslationProfile.GetBuiltInProfiles();
             var activeProfile = profiles.FirstOrDefault(p => p.Id == settings.ActiveProfileId) ?? profiles.FirstOrDefault();
-            
+
             var request = new TranslationRequest
             {
                 SourceText = text,
@@ -295,7 +296,7 @@ public partial class MainViewModel : ObservableObject
                 UseAutoDetection = settings.UseAutoProfileDetection
             };
 
-            var result = await _translationService.TranslateAsync(request, CancellationToken.None);
+            var result = await _translationService.TranslateAsync(request, cts.Token);
 
             if (result.Success)
             {
@@ -306,10 +307,19 @@ public partial class MainViewModel : ObservableObject
                 return (false, null, result.ErrorMessage ?? LocalizationService.Instance["TranslationFailed"]);
             }
         }
+        catch (TaskCanceledException) when (cts.Token.IsCancellationRequested)
+        {
+            _logger.Warning("Popup translation timed out after 30 seconds");
+            return (false, null, LocalizationService.Instance["TranslationFailed"]);
+        }
         catch (Exception ex)
         {
             _logger.Error(ex, "Popup translation error");
             return (false, null, ex.Message);
+        }
+        finally
+        {
+            cts.Dispose();
         }
     }
 
@@ -357,9 +367,9 @@ public partial class MainViewModel : ObservableObject
                 SourceLanguage = detectedLanguage ?? "auto",
                 TargetLanguage = SelectedTargetLanguage,
                 ProviderName = SelectedProvider?.Name,
-                ProfileId = UseAutoProfileDetection ? "auto" : SelectedProfile?.Id
+                ProfileId = UseAutoProfileDetection ? "auto" : (SelectedProfile?.Id ?? "general")
             };
-            
+
             _historyService.Add(historyItem);
             _logger.Information("Translation saved to history");
         }
@@ -446,5 +456,12 @@ public partial class MainViewModel : ObservableObject
             SourceText = text;
             StatusMessage = LocalizationService.Instance["PastedFromClipboard"];
         }
+    }
+
+    public void Dispose()
+    {
+        _audioPlayerService.PlaybackFinished -= OnPlaybackFinished;
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
     }
 }

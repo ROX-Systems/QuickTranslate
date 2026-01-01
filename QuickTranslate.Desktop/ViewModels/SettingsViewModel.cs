@@ -16,6 +16,9 @@ public partial class SettingsViewModel : ObservableObject
     private AppSettings _appSettings = new();
 
     [ObservableProperty]
+    private string _validationError = string.Empty;
+
+    [ObservableProperty]
     private ObservableCollection<ProviderConfig> _providers = new();
 
     [ObservableProperty]
@@ -275,6 +278,29 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (SelectedProvider == null) return;
 
+        // Validate URL
+        if (!IsValidUrl(BaseUrl))
+        {
+            ValidationError = "Invalid Base URL. Please enter a valid URL (e.g., https://api.openai.com/v1)";
+            return;
+        }
+
+        // Validate API key (should not be empty)
+        if (string.IsNullOrWhiteSpace(ApiKey))
+        {
+            ValidationError = "API key is required";
+            return;
+        }
+
+        // Validate model name
+        if (string.IsNullOrWhiteSpace(Model))
+        {
+            ValidationError = "Model name is required";
+            return;
+        }
+
+        ValidationError = string.Empty;
+
         SelectedProvider.Name = ProviderName;
         SelectedProvider.BaseUrl = BaseUrl;
         SelectedProvider.ApiKey = ApiKey;
@@ -290,6 +316,15 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
+    private static bool IsValidUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return false;
+
+        return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
+            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
+    }
+
     [RelayCommand]
     private void Save()
     {
@@ -297,13 +332,42 @@ public partial class SettingsViewModel : ObservableObject
         {
             UpdateSelectedProviderFromFields();
 
+            // Check for validation errors
+            if (!string.IsNullOrWhiteSpace(ValidationError))
+            {
+                StatusMessage = ValidationError;
+                return;
+            }
+
+            // Validate all providers
+            foreach (var provider in Providers)
+            {
+                if (!IsValidUrl(provider.BaseUrl))
+                {
+                    StatusMessage = $"Invalid Base URL for provider '{provider.Name}'";
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(provider.ApiKey))
+                {
+                    StatusMessage = $"API key is required for provider '{provider.Name}'";
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(provider.Model))
+                {
+                    StatusMessage = $"Model name is required for provider '{provider.Name}'";
+                    return;
+                }
+            }
+
             _appSettings.Providers = Providers.ToList();
             _appSettings.TargetLanguage = TargetLanguage;
             _appSettings.InterfaceLanguage = SelectedInterfaceLanguage;
             _appSettings.ColorTheme = SelectedColorTheme.ToString();
             _appSettings.TranslateSelectionHotkey = _translateSelectionHotkey;
             _appSettings.ShowHideHotkey = _showHideHotkey;
-            
+
             if (SelectedProvider != null)
             {
                 _appSettings.ActiveProviderId = SelectedProvider.Id;
@@ -311,10 +375,10 @@ public partial class SettingsViewModel : ObservableObject
             }
 
             _settingsStore.Save(_appSettings);
-            
+
             StatusMessage = "Settings saved!";
             _logger.Information("Settings saved: {Count} providers", Providers.Count);
-            
+
             SettingsSaved?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)

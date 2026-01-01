@@ -52,9 +52,18 @@ public class HotkeyService : IHotkeyService
     public void Initialize(IntPtr windowHandle)
     {
         _windowHandle = windowHandle;
-        _hwndSource = HwndSource.FromHwnd(windowHandle);
-        _hwndSource?.AddHook(WndProc);
-        _logger.Information("HotkeyService initialized with window handle: {Handle}", windowHandle);
+        try
+        {
+            _hwndSource = HwndSource.FromHwnd(windowHandle);
+            _hwndSource?.AddHook(WndProc);
+            _logger.Information("HotkeyService initialized with window handle: {Handle}", windowHandle);
+        }
+        catch
+        {
+            _hwndSource?.Dispose();
+            _hwndSource = null;
+            throw;
+        }
     }
 
     public void RegisterHotkey(HotkeyAction action, uint modifiers, uint key)

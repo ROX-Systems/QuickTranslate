@@ -8,6 +8,7 @@ namespace QuickTranslate.Core.Services;
 public class TranslationHistoryService : ITranslationHistoryService
 {
     private readonly string _historyPath;
+    private readonly string _backupPath;
     private readonly ILogger _logger;
     private readonly object _lock = new();
     private List<TranslationHistoryItem> _history = new();
@@ -19,8 +20,9 @@ public class TranslationHistoryService : ITranslationHistoryService
         var appFolder = Path.Combine(appDataPath, "QuickTranslate");
         Directory.CreateDirectory(appFolder);
         _historyPath = Path.Combine(appFolder, "history.json");
+        _backupPath = Path.Combine(appFolder, "history_backup.json");
         _logger = Log.ForContext<TranslationHistoryService>();
-        
+
         LoadHistory();
     }
 
@@ -37,8 +39,26 @@ public class TranslationHistoryService : ITranslationHistoryService
         }
         catch (Exception ex)
         {
-            _logger.Error(ex, "Failed to load translation history");
-            _history = new();
+            _logger.Warning(ex, "Failed to load from primary history file, trying backup");
+            try
+            {
+                if (File.Exists(_backupPath))
+                {
+                    var json = File.ReadAllText(_backupPath);
+                    _history = JsonSerializer.Deserialize<List<TranslationHistoryItem>>(json) ?? new();
+                    _logger.Information("Loaded {Count} history items from backup", _history.Count);
+                }
+                else
+                {
+                    _logger.Warning("No backup history file found, starting with empty history");
+                    _history = new();
+                }
+            }
+            catch (Exception backupEx)
+            {
+                _logger.Error(backupEx, "Failed to load from both primary and backup history files");
+                _history = new();
+            }
         }
     }
 
@@ -47,7 +67,27 @@ public class TranslationHistoryService : ITranslationHistoryService
         try
         {
             var json = JsonSerializer.Serialize(_history, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(_historyPath, json);
+
+            // Try to save to primary location first
+            try
+            {
+                File.WriteAllText(_historyPath, json);
+                _logger.Debug("Translation history saved successfully");
+            }
+            catch (Exception primaryEx)
+            {
+                _logger.Warning(primaryEx, "Failed to save to primary history file, trying backup");
+                try
+                {
+                    File.WriteAllText(_backupPath, json);
+                    _logger.Warning("Translation history saved to backup location: {BackupPath}", _backupPath);
+                }
+                catch (Exception backupEx)
+                {
+                    _logger.Error(backupEx, "Failed to save to both primary and backup history locations");
+                    throw new InvalidOperationException("Failed to save translation history to both primary and backup locations", backupEx);
+                }
+            }
         }
         catch (Exception ex)
         {

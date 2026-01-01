@@ -27,8 +27,8 @@ public class ErrorColorConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool hasError && hasError)
-            return new SolidColorBrush(Color.FromRgb(255, 100, 100));
-        return new SolidColorBrush(Color.FromRgb(136, 136, 136));
+            return new SolidColorBrush(ThemeColors.Error);
+        return new SolidColorBrush(ThemeColors.Neutral);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -89,8 +89,8 @@ public class SpeakingColorConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool isSpeaking && isSpeaking)
-            return new SolidColorBrush(Color.FromRgb(76, 175, 80));
-        return new SolidColorBrush(Color.FromRgb(136, 136, 136));
+            return new SolidColorBrush(ThemeColors.Speaking);
+        return new SolidColorBrush(ThemeColors.Neutral);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -119,8 +119,8 @@ public class FavoriteColorConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool isFavorite && isFavorite)
-            return new SolidColorBrush(Color.FromRgb(255, 193, 7));
-        return new SolidColorBrush(Color.FromRgb(136, 136, 136));
+            return new SolidColorBrush(ThemeColors.Favorite);
+        return new SolidColorBrush(ThemeColors.Neutral);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -16,6 +16,13 @@ public class HotkeyConfig
 
 public class AppSettings
 {
+    // Hotkey modifier constants
+    public const uint ModifierCtrlShift = 0x0006;
+
+    // Virtual key codes
+    public const uint KeyT = 0x54;
+    public const uint KeyO = 0x4F;
+
     public List<ProviderConfig> Providers { get; set; } = new();
     public string? ActiveProviderId { get; set; }
     public string TargetLanguage { get; set; } = "Russian";
@@ -25,20 +32,21 @@ public class AppSettings
     public bool UseAutoProfileDetection { get; set; } = false;
     public bool TtsEnabled { get; set; } = true;
     public bool AutoSpeakAfterTranslate { get; set; } = false;
-    
-    private HotkeyConfig _translateSelectionHotkey = new(0x0006, 0x54); // Ctrl+Shift+T
-    private HotkeyConfig _showHideHotkey = new(0x0006, 0x4F); // Ctrl+Shift+O
+    public string? TtsEndpoint { get; set; } = "https://tts.rox-net.ru";
 
-    public HotkeyConfig TranslateSelectionHotkey 
-    { 
+    private HotkeyConfig _translateSelectionHotkey = new(ModifierCtrlShift, KeyT);
+    private HotkeyConfig _showHideHotkey = new(ModifierCtrlShift, KeyO);
+
+    public HotkeyConfig TranslateSelectionHotkey
+    {
         get => _translateSelectionHotkey;
-        set => _translateSelectionHotkey = IsValidHotkey(value) ? value : new(0x0006, 0x54);
+        set => _translateSelectionHotkey = IsValidHotkey(value) ? value : new(ModifierCtrlShift, KeyT);
     }
-    
-    public HotkeyConfig ShowHideHotkey 
-    { 
+
+    public HotkeyConfig ShowHideHotkey
+    {
         get => _showHideHotkey;
-        set => _showHideHotkey = IsValidHotkey(value) ? value : new(0x0006, 0x4F);
+        set => _showHideHotkey = IsValidHotkey(value) ? value : new(ModifierCtrlShift, KeyO);
     }
 
     private static bool IsValidHotkey(HotkeyConfig? hotkey) => 

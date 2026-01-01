@@ -158,7 +158,7 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
         var jsonContent = JsonSerializer.Serialize(request);
         httpRequest.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-        _logger.Information("Sending translation request to {Endpoint}", endpoint);
+        _logger.Debug("Sending translation request to {BaseUrl}", baseUrl);
 
         var response = await httpClient.SendAsync(httpRequest, cancellationToken);
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -171,19 +171,29 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
 
         var chatResponse = JsonSerializer.Deserialize<ChatCompletionResponse>(responseBody);
 
-        if (chatResponse?.Error != null)
+        if (chatResponse == null)
         {
-            return TranslationResult.FromError($"API Error: {chatResponse.Error.Message}");
+            _logger.Error("Failed to deserialize API response: {Body}", responseBody);
+            return TranslationResult.FromError("Invalid response format from API");
+        }
+
+        if (chatResponse.Error != null)
+        {
+            var errorType = chatResponse.Error.Type ?? "Unknown";
+            var errorMessage = $"API Error ({errorType}): {chatResponse.Error.Message}";
+            _logger.Error("API returned error: {Type} - {Message}", errorType, chatResponse.Error.Message);
+            return TranslationResult.FromError(errorMessage);
         }
 
         var translatedText = chatResponse?.Choices?.FirstOrDefault()?.Message?.Content;
 
         if (string.IsNullOrEmpty(translatedText))
         {
+            _logger.Warning("API response contained no translated text");
             return TranslationResult.FromError("Empty response from API");
         }
 
-        _logger.Information("Translation completed successfully");
+        _logger.Debug("Translation completed successfully");
         return TranslationResult.FromSuccess(translatedText.Trim());
     }
 

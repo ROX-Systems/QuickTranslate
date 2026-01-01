@@ -12,9 +12,8 @@ public class SettingsStore : ISettingsStore
     private readonly string _settingsPath;
     private readonly ILogger _logger;
     private readonly object _lock = new();
-    
+
     private AppSettings? _cachedSettings;
-    private DateTime _cacheTime = DateTime.MinValue;
     private DateTime _lastFileWrite = DateTime.MinValue;
 
     public SettingsStore()
@@ -30,16 +29,31 @@ public class SettingsStore : ISettingsStore
     {
         lock (_lock)
         {
-            if (IsCacheValid())
+            var fileWriteTime = GetFileWriteTime();
+            if (IsCacheValid(fileWriteTime))
             {
                 return _cachedSettings!;
             }
-            
-            return LoadFromFile();
+
+            return LoadFromFile(fileWriteTime);
         }
     }
 
-    private bool IsCacheValid()
+    private DateTime GetFileWriteTime()
+    {
+        try
+        {
+            return File.Exists(_settingsPath) 
+                ? File.GetLastWriteTimeUtc(_settingsPath) 
+                : DateTime.MinValue;
+        }
+        catch
+        {
+            return DateTime.MinValue;
+        }
+    }
+
+    private bool IsCacheValid(DateTime fileWriteTime)
     {
         if (_cachedSettings == null)
             return false;
@@ -47,11 +61,10 @@ public class SettingsStore : ISettingsStore
         if (!File.Exists(_settingsPath))
             return false;
 
-        var fileWriteTime = File.GetLastWriteTimeUtc(_settingsPath);
         return fileWriteTime <= _lastFileWrite;
     }
 
-    private AppSettings LoadFromFile()
+    private AppSettings LoadFromFile(DateTime fileWriteTime)
     {
         try
         {
@@ -77,6 +90,7 @@ public class SettingsStore : ISettingsStore
                 ColorTheme = stored.ColorTheme,
                 ActiveProfileId = stored.ActiveProfileId ?? "general",
                 UseAutoProfileDetection = stored.UseAutoProfileDetection,
+                TtsEndpoint = stored.TtsEndpoint,
                 Providers = stored.Providers?.Select(sp => new ProviderConfig
                 {
                     Id = sp.Id ?? Guid.NewGuid().ToString(),
@@ -88,12 +102,12 @@ public class SettingsStore : ISettingsStore
                     TimeoutSeconds = sp.TimeoutSeconds,
                     ApiKey = DecryptApiKey(sp.EncryptedApiKey)
                 }).ToList() ?? new List<ProviderConfig>(),
-                TranslateSelectionHotkey = stored.TranslateSelectionHotkey != null 
+                TranslateSelectionHotkey = stored.TranslateSelectionHotkey != null
                     ? new HotkeyConfig(stored.TranslateSelectionHotkey.Modifiers, stored.TranslateSelectionHotkey.Key)
-                    : new HotkeyConfig(0x0006, 0x54),
-                ShowHideHotkey = stored.ShowHideHotkey != null 
+                    : new HotkeyConfig(AppSettings.ModifierCtrlShift, AppSettings.KeyT),
+                ShowHideHotkey = stored.ShowHideHotkey != null
                     ? new HotkeyConfig(stored.ShowHideHotkey.Modifiers, stored.ShowHideHotkey.Key)
-                    : new HotkeyConfig(0x0006, 0x4F)
+                    : new HotkeyConfig(AppSettings.ModifierCtrlShift, AppSettings.KeyO)
             };
 
             if (settings.Providers.Count == 0)
@@ -102,7 +116,7 @@ public class SettingsStore : ISettingsStore
             }
 
             _cachedSettings = settings;
-            _lastFileWrite = File.GetLastWriteTimeUtc(_settingsPath);
+            _lastFileWrite = fileWriteTime;
             _logger.Information("Settings loaded: {Count} providers", settings.Providers.Count);
             return settings;
         }
@@ -133,6 +147,7 @@ public class SettingsStore : ISettingsStore
                 ColorTheme = settings.ColorTheme,
                 ActiveProfileId = settings.ActiveProfileId,
                 UseAutoProfileDetection = settings.UseAutoProfileDetection,
+                TtsEndpoint = settings.TtsEndpoint,
                 Providers = settings.Providers.Select(p => new StoredProviderConfig
                 {
                     Id = p.Id,
@@ -144,15 +159,15 @@ public class SettingsStore : ISettingsStore
                     TimeoutSeconds = p.TimeoutSeconds,
                     EncryptedApiKey = EncryptApiKey(p.ApiKey)
                 }).ToList(),
-                TranslateSelectionHotkey = new StoredHotkeyConfig 
-                { 
-                    Modifiers = settings.TranslateSelectionHotkey.Modifiers, 
-                    Key = settings.TranslateSelectionHotkey.Key 
+                TranslateSelectionHotkey = new StoredHotkeyConfig
+                {
+                    Modifiers = settings.TranslateSelectionHotkey.Modifiers,
+                    Key = settings.TranslateSelectionHotkey.Key
                 },
-                ShowHideHotkey = new StoredHotkeyConfig 
-                { 
-                    Modifiers = settings.ShowHideHotkey.Modifiers, 
-                    Key = settings.ShowHideHotkey.Key 
+                ShowHideHotkey = new StoredHotkeyConfig
+                {
+                    Modifiers = settings.ShowHideHotkey.Modifiers,
+                    Key = settings.ShowHideHotkey.Key
                 }
             };
 
@@ -241,6 +256,7 @@ public class SettingsStore : ISettingsStore
         public List<StoredProviderConfig>? Providers { get; set; }
         public StoredHotkeyConfig? TranslateSelectionHotkey { get; set; }
         public StoredHotkeyConfig? ShowHideHotkey { get; set; }
+        public string? TtsEndpoint { get; set; }
     }
 
     private class StoredHotkeyConfig
