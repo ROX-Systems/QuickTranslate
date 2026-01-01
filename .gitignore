@@ -129,3 +129,8 @@ logs/
 # Generated documentation
 *.docx
 *.pdf
+
+# IDE-related directories
+.claude/
+.windsurf/
+agent-os/
