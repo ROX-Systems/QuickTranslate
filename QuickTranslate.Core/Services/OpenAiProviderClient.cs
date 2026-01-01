@@ -1,6 +1,9 @@
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Http;
+using Polly;
+using Polly.Retry;
 using QuickTranslate.Core.Interfaces;
 using QuickTranslate.Core.Models;
 using Serilog;
@@ -13,13 +16,7 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
     private HttpClient? _ownedHttpClient;
     private ProviderConfig _provider;
     private readonly ILogger _logger;
-
-    private const int MaxRetryAttempts = 3;
-    private static readonly TimeSpan[] RetryDelays = { 
-        TimeSpan.FromSeconds(1), 
-        TimeSpan.FromSeconds(2), 
-        TimeSpan.FromSeconds(4) 
-    };
+    private readonly AsyncRetryPolicy<HttpResponseMessage> _retryPolicy;
 
     public ProviderConfig? CurrentProvider => _provider;
 
@@ -28,11 +25,43 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
         _provider = provider ?? new ProviderConfig();
         _httpClientFactory = httpClientFactory;
         _logger = Log.ForContext<OpenAiProviderClient>();
-        
+
+        _retryPolicy = CreateRetryPolicy();
+
         if (_httpClientFactory == null)
         {
             _ownedHttpClient = CreateHttpClient();
         }
+    }
+
+    private AsyncRetryPolicy<HttpResponseMessage> CreateRetryPolicy()
+    {
+        return Policy
+            .HandleResult<HttpResponseMessage>(r =>
+                !r.IsSuccessStatusCode && IsRetryableStatusCode(r.StatusCode))
+            .Or<HttpRequestException>()
+            .WaitAndRetryAsync(
+                retryCount: 3,
+                sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                onRetry: (outcome, timespan, retryAttempt, context) =>
+                {
+                    _logger.Warning(
+                        outcome.Exception,
+                        "Retry {RetryAttempt} after {Delay}s due to: {Reason}",
+                        retryAttempt,
+                        timespan.TotalSeconds,
+                        outcome.Exception?.Message ?? outcome.Result?.StatusCode.ToString());
+                });
+    }
+
+    private static bool IsRetryableStatusCode(System.Net.HttpStatusCode statusCode)
+    {
+        return statusCode is
+            System.Net.HttpStatusCode.TooManyRequests or
+            System.Net.HttpStatusCode.InternalServerError or
+            System.Net.HttpStatusCode.BadGateway or
+            System.Net.HttpStatusCode.ServiceUnavailable or
+            System.Net.HttpStatusCode.GatewayTimeout;
     }
 
     private HttpClient GetHttpClient()
@@ -98,69 +127,47 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
     }
 
     private async Task<TranslationResult> ExecuteWithRetryAsync(
-        string endpoint, 
-        ChatCompletionRequest request, 
+        string endpoint,
+        ChatCompletionRequest request,
         CancellationToken cancellationToken)
     {
-        Exception? lastException = null;
-        
-        for (int attempt = 0; attempt <= MaxRetryAttempts; attempt++)
+        try
         {
-            if (attempt > 0)
-            {
-                var delay = RetryDelays[Math.Min(attempt - 1, RetryDelays.Length - 1)];
-                _logger.Information("Retry attempt {Attempt} after {Delay}s", attempt, delay.TotalSeconds);
-                await Task.Delay(delay, cancellationToken);
-            }
-
-            try
-            {
-                var result = await SendRequestAsync(endpoint, request, cancellationToken);
-                
-                if (result.Success || !IsRetryableError(result.ErrorMessage))
-                {
-                    return result;
-                }
-                
-                _logger.Warning("Retryable error on attempt {Attempt}: {Error}", attempt + 1, result.ErrorMessage);
-            }
-            catch (TaskCanceledException)
-            {
-                _logger.Warning("Translation request was cancelled");
-                return TranslationResult.FromError("Request was cancelled");
-            }
-            catch (HttpRequestException ex) when (IsRetryableException(ex))
-            {
-                lastException = ex;
-                _logger.Warning(ex, "Retryable HTTP error on attempt {Attempt}", attempt + 1);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Non-retryable error during translation");
-                return TranslationResult.FromError($"Error: {ex.Message}");
-            }
+            var result = await SendRequestAsync(endpoint, request, cancellationToken);
+            return result;
         }
-
-        _logger.Error(lastException, "All retry attempts exhausted");
-        return TranslationResult.FromError($"Network error after {MaxRetryAttempts} retries: {lastException?.Message}");
+        catch (TaskCanceledException)
+        {
+            _logger.Warning("Translation request was cancelled");
+            return TranslationResult.FromError("Request was cancelled");
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex, "Translation failed after all retry attempts");
+            return TranslationResult.FromError($"Error: {ex.Message}");
+        }
     }
 
     private async Task<TranslationResult> SendRequestAsync(
-        string endpoint, 
-        ChatCompletionRequest request, 
+        string endpoint,
+        ChatCompletionRequest request,
         CancellationToken cancellationToken)
     {
         var httpClient = GetHttpClient();
-        
+
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint);
         httpRequest.Headers.Add("Authorization", $"Bearer {_provider.ApiKey}");
-        
+
         var jsonContent = JsonSerializer.Serialize(request);
         httpRequest.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-        _logger.Debug("Sending translation request to {BaseUrl}", baseUrl);
+        _logger.Debug("Sending translation request to {BaseUrl}", _provider.BaseUrl);
 
-        var response = await httpClient.SendAsync(httpRequest, cancellationToken);
+        HttpResponseMessage response = await _retryPolicy.ExecuteAsync(async ct =>
+        {
+            return await httpClient.SendAsync(httpRequest, ct);
+        }, cancellationToken);
+
         var responseBody = await response.Content.ReadAsStringAsync(cancellationToken);
 
         if (!response.IsSuccessStatusCode)
@@ -195,28 +202,6 @@ public class OpenAiProviderClient : IProviderClient, IDisposable
 
         _logger.Debug("Translation completed successfully");
         return TranslationResult.FromSuccess(translatedText.Trim());
-    }
-
-    private static bool IsRetryableError(string? errorMessage)
-    {
-        if (string.IsNullOrEmpty(errorMessage)) return false;
-        
-        return errorMessage.Contains("429") || 
-               errorMessage.Contains("500") || 
-               errorMessage.Contains("502") || 
-               errorMessage.Contains("503") || 
-               errorMessage.Contains("504") ||
-               errorMessage.Contains("timeout", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool IsRetryableException(HttpRequestException ex)
-    {
-        return ex.StatusCode is 
-            System.Net.HttpStatusCode.TooManyRequests or
-            System.Net.HttpStatusCode.InternalServerError or
-            System.Net.HttpStatusCode.BadGateway or
-            System.Net.HttpStatusCode.ServiceUnavailable or
-            System.Net.HttpStatusCode.GatewayTimeout;
     }
 
     public void Dispose()

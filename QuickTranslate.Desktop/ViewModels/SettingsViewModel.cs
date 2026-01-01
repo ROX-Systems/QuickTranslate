@@ -1,8 +1,12 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FluentValidation;
+using FluentValidation.Results;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using QuickTranslate.Core.Interfaces;
 using QuickTranslate.Core.Models;
+using QuickTranslate.Core.Validators;
 using QuickTranslate.Desktop.Services;
 using Serilog;
 
@@ -12,7 +16,10 @@ public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsStore _settingsStore;
     private readonly IProviderClient _providerClient;
+    private readonly IHealthCheckService _healthCheckService;
     private readonly ILogger _logger;
+    private readonly AppSettingsValidator _appSettingsValidator;
+    private readonly ProviderConfigValidator _providerValidator;
     private AppSettings _appSettings = new();
 
     [ObservableProperty]
@@ -96,12 +103,15 @@ public partial class SettingsViewModel : ObservableObject
     public event EventHandler? SettingsSaved;
     public event EventHandler? CloseRequested;
 
-    public SettingsViewModel(ISettingsStore settingsStore, IProviderClient providerClient)
+    public SettingsViewModel(ISettingsStore settingsStore, IProviderClient providerClient, IHealthCheckService healthCheckService)
     {
         _settingsStore = settingsStore;
         _providerClient = providerClient;
+        _healthCheckService = healthCheckService;
         _logger = Log.ForContext<SettingsViewModel>();
-        
+        _appSettingsValidator = new AppSettingsValidator();
+        _providerValidator = new ProviderConfigValidator();
+
         LoadSettings();
     }
 
@@ -278,24 +288,21 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (SelectedProvider == null) return;
 
-        // Validate URL
-        if (!IsValidUrl(BaseUrl))
+        var tempProvider = new ProviderConfig
         {
-            ValidationError = "Invalid Base URL. Please enter a valid URL (e.g., https://api.openai.com/v1)";
-            return;
-        }
+            Name = ProviderName,
+            BaseUrl = BaseUrl,
+            ApiKey = ApiKey,
+            Model = Model,
+            Temperature = Temperature,
+            MaxTokens = MaxTokens,
+            TimeoutSeconds = TimeoutSeconds
+        };
 
-        // Validate API key (should not be empty)
-        if (string.IsNullOrWhiteSpace(ApiKey))
+        var validationResult = _providerValidator.Validate(tempProvider);
+        if (!validationResult.IsValid)
         {
-            ValidationError = "API key is required";
-            return;
-        }
-
-        // Validate model name
-        if (string.IsNullOrWhiteSpace(Model))
-        {
-            ValidationError = "Model name is required";
+            ValidationError = string.Join(Environment.NewLine, validationResult.Errors.Select(e => e.ErrorMessage));
             return;
         }
 
@@ -316,15 +323,6 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
-    private static bool IsValidUrl(string url)
-    {
-        if (string.IsNullOrWhiteSpace(url))
-            return false;
-
-        return Uri.TryCreate(url, UriKind.Absolute, out var uriResult)
-            && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
-    }
-
     [RelayCommand]
     private void Save()
     {
@@ -332,33 +330,10 @@ public partial class SettingsViewModel : ObservableObject
         {
             UpdateSelectedProviderFromFields();
 
-            // Check for validation errors
             if (!string.IsNullOrWhiteSpace(ValidationError))
             {
                 StatusMessage = ValidationError;
                 return;
-            }
-
-            // Validate all providers
-            foreach (var provider in Providers)
-            {
-                if (!IsValidUrl(provider.BaseUrl))
-                {
-                    StatusMessage = $"Invalid Base URL for provider '{provider.Name}'";
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(provider.ApiKey))
-                {
-                    StatusMessage = $"API key is required for provider '{provider.Name}'";
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(provider.Model))
-                {
-                    StatusMessage = $"Model name is required for provider '{provider.Name}'";
-                    return;
-                }
             }
 
             _appSettings.Providers = Providers.ToList();
@@ -371,6 +346,18 @@ public partial class SettingsViewModel : ObservableObject
             if (SelectedProvider != null)
             {
                 _appSettings.ActiveProviderId = SelectedProvider.Id;
+            }
+
+            var appSettingsValidationResult = _appSettingsValidator.Validate(_appSettings);
+            if (!appSettingsValidationResult.IsValid)
+            {
+                var firstError = appSettingsValidationResult.Errors.First();
+                StatusMessage = firstError.ErrorMessage;
+                return;
+            }
+
+            if (SelectedProvider != null)
+            {
                 _providerClient.UpdateProvider(SelectedProvider);
             }
 
@@ -391,9 +378,21 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task TestConnectionAsync()
     {
-        if (string.IsNullOrWhiteSpace(ApiKey))
+        var tempProvider = new ProviderConfig
         {
-            StatusMessage = "Please enter an API key";
+            Name = ProviderName,
+            BaseUrl = BaseUrl,
+            ApiKey = ApiKey,
+            Model = Model,
+            Temperature = Temperature,
+            MaxTokens = 50,
+            TimeoutSeconds = 30
+        };
+
+        var validationResult = _providerValidator.Validate(tempProvider);
+        if (!validationResult.IsValid)
+        {
+            StatusMessage = validationResult.Errors.First().ErrorMessage;
             return;
         }
 
@@ -402,32 +401,17 @@ public partial class SettingsViewModel : ObservableObject
 
         try
         {
-            var testProvider = new ProviderConfig
+            var healthResult = await _healthCheckService.CheckProviderHealthAsync(tempProvider, CancellationToken.None);
+
+            if (healthResult.Status == HealthStatus.Healthy)
             {
-                BaseUrl = BaseUrl,
-                ApiKey = ApiKey,
-                Model = Model,
-                Temperature = Temperature,
-                MaxTokens = 50,
-                TimeoutSeconds = 30
-            };
-
-            _providerClient.UpdateProvider(testProvider);
-
-            var result = await _providerClient.SendTranslationRequestAsync(
-                "You are a test assistant.",
-                "Say 'OK' if you can read this.",
-                CancellationToken.None);
-
-            if (result.Success)
-            {
-                StatusMessage = "✓ Connection successful!";
+                StatusMessage = $"✓ Connection successful! {healthResult.Description}";
                 _logger.Information("Connection test passed for {Provider}", ProviderName);
             }
             else
             {
-                StatusMessage = $"✗ Test failed: {result.ErrorMessage}";
-                _logger.Warning("Connection test failed: {Error}", result.ErrorMessage);
+                StatusMessage = $"✗ Test failed: {healthResult.Description}";
+                _logger.Warning("Connection test failed for {Provider}: {Error}", ProviderName, healthResult.Description);
             }
         }
         catch (Exception ex)
@@ -438,7 +422,7 @@ public partial class SettingsViewModel : ObservableObject
         finally
         {
             IsTesting = false;
-            
+
             var activeProvider = _appSettings.GetActiveProvider();
             if (activeProvider != null)
             {

@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:QuickTranslate.Desktop.Services"
+        xmlns:converters="clr-namespace:QuickTranslate.Desktop.Converters"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="Translation"
         WindowStyle="None"
@@ -14,9 +15,9 @@
         MaxHeight="450"
         Deactivated="Window_Deactivated">
     
-    <Border Background="{ui:ThemeResource ApplicationBackgroundBrush}" 
-            BorderBrush="{ui:ThemeResource ControlStrokeColorDefaultBrush}" 
-            BorderThickness="1" 
+    <Border Background="{ui:ThemeResource ApplicationBackgroundBrush}"
+            BorderBrush="{ui:ThemeResource ControlStrokeColorDefaultBrush}"
+            BorderThickness="1"
             CornerRadius="8"
             Padding="16"
             Margin="4"
@@ -47,7 +48,7 @@
                 </StackPanel>
                 <ui:Button HorizontalAlignment="Right"
                            Appearance="Transparent"
-                           Click="Close_Click"
+                           Command="{Binding CloseCommand}"
                            Padding="6"
                            ToolTip="{Binding [Close], Source={x:Static local:Loc.Instance}}">
                     <ui:SymbolIcon Symbol="Dismiss16"/>
@@ -55,48 +56,48 @@
             </Grid>
             
             <!-- Translation Text -->
-            <ScrollViewer Grid.Row="1" 
+            <ScrollViewer Grid.Row="1"
                           x:Name="TranslationScrollViewer"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled"
                           MaxHeight="300"
-                          Visibility="Collapsed">
-                <TextBlock x:Name="TranslationText"
+                          Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisConverter}}">
+                <TextBlock Text="{Binding TranslatedText}"
                            Foreground="{ui:ThemeResource TextFillColorPrimaryBrush}"
                            TextWrapping="Wrap"
                            FontSize="14"
                            LineHeight="22"
                            Padding="4"/>
             </ScrollViewer>
-            
+
             <!-- Loading indicator -->
-            <StackPanel Grid.Row="1" 
+            <StackPanel Grid.Row="1"
                         x:Name="LoadingPanel"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Visibility="Visible">
-                <ui:ProgressRing IsIndeterminate="True" 
-                                 Width="32" 
+                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisConverter}}">
+                <ui:ProgressRing IsIndeterminate="True"
+                                 Width="32"
                                  Height="32"
                                  Margin="0,0,0,8"/>
-                <TextBlock Text="{Binding [Translating], Source={x:Static local:Loc.Instance}}" 
-                           Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}" 
+                <TextBlock Text="{Binding [Translating], Source={x:Static local:Loc.Instance}}"
+                           Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
                            FontSize="13"/>
             </StackPanel>
-            
+
             <!-- Error message -->
             <Border Grid.Row="1"
                     x:Name="ErrorBorder"
                     Background="{ui:ThemeResource SystemFillColorCriticalBackgroundBrush}"
                     CornerRadius="4"
                     Padding="12"
-                    Visibility="Collapsed">
+                    Visibility="{Binding HasError, Converter={StaticResource BoolToVisConverter}}">
                 <StackPanel Orientation="Horizontal">
-                    <ui:SymbolIcon Symbol="ErrorCircle24" 
+                    <ui:SymbolIcon Symbol="ErrorCircle24"
                                    Foreground="{ui:ThemeResource SystemFillColorCriticalBrush}"
                                    Margin="0,0,8,0"
                                    VerticalAlignment="Center"/>
-                    <TextBlock x:Name="ErrorText"
+                    <TextBlock Text="{Binding ErrorMessage}"
                                Foreground="{ui:ThemeResource SystemFillColorCriticalBrush}"
                                TextWrapping="Wrap"
                                FontSize="13"
@@ -113,16 +114,15 @@
                 
                 <!-- Character count -->
                 <TextBlock Grid.Column="0"
-                           x:Name="CharacterCountText"
-                           Text="{Binding SourceCharacterCountText}"
+                           Text="{Binding CharacterCountText}"
                            Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
                            FontSize="11"
                            VerticalAlignment="Center"/>
-                
+
                 <!-- Copy button -->
                 <ui:Button Grid.Column="1"
                            Appearance="Secondary"
-                           Click="Copy_Click"
+                           Command="{Binding CopyCommand}"
                            Padding="12,6"
                            FontSize="12">
                     <StackPanel Orientation="Horizontal">
@@ -133,8 +133,9 @@
             </Grid>
         </Grid>
     </Border>
-    
+
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisConverter"/>
     </Window.Resources>
 </Window>

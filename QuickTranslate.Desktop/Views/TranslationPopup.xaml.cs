@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Input;
 using QuickTranslate.Desktop.Services.Interfaces;
+using QuickTranslate.Desktop.ViewModels;
 
 namespace QuickTranslate.Desktop.Views;
 
@@ -17,45 +17,30 @@ public partial class TranslationPopup : Window
         public int Y;
     }
 
-    private readonly IClipboardService _clipboardService;
+    private readonly TranslationPopupViewModel _viewModel;
 
-    public string TranslatedText { get; set; } = string.Empty;
-    public string ErrorMessage { get; set; } = string.Empty;
-    public bool IsLoading { get; set; }
-    public bool HasError { get; set; }
+    public TranslationPopupViewModel ViewModel => _viewModel;
 
     public TranslationPopup(IClipboardService clipboardService)
     {
         InitializeComponent();
-        _clipboardService = clipboardService;
-        DataContext = this;
+        _viewModel = new TranslationPopupViewModel(clipboardService);
+        DataContext = _viewModel;
     }
 
     public void SetTranslation(string text)
     {
-        TranslatedText = text;
-        TranslationText.Text = text;
-        LoadingPanel.Visibility = Visibility.Collapsed;
-        ErrorBorder.Visibility = Visibility.Collapsed;
-        TranslationScrollViewer.Visibility = Visibility.Visible;
-        CharacterCountText.Text = $"{text.Length} {Services.LocalizationService.Instance["Characters"]}";
+        _viewModel.SetTranslation(text);
     }
 
     public void SetError(string error)
     {
-        ErrorText.Text = error;
-        LoadingPanel.Visibility = Visibility.Collapsed;
-        TranslationScrollViewer.Visibility = Visibility.Collapsed;
-        ErrorBorder.Visibility = Visibility.Visible;
-        CharacterCountText.Text = string.Empty;
+        _viewModel.SetError(error);
     }
 
     public void SetLoading()
     {
-        LoadingPanel.Visibility = Visibility.Visible;
-        TranslationScrollViewer.Visibility = Visibility.Collapsed;
-        ErrorBorder.Visibility = Visibility.Collapsed;
-        CharacterCountText.Text = string.Empty;
+        _viewModel.SetLoading();
     }
 
     public void ShowAtCursor()
@@ -94,16 +79,6 @@ public partial class TranslationPopup : Window
             }
         }
         catch { }
-    }
-
-    private void Close_Click(object sender, RoutedEventArgs e)
-    {
-        Close();
-    }
-
-    private void Copy_Click(object sender, RoutedEventArgs e)
-    {
-        _clipboardService.CopyToClipboard(TranslatedText);
     }
 
     private void Border_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)

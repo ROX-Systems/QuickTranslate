@@ -62,6 +62,7 @@ public partial class App : Application
         
         services.AddSingleton<ISettingsStore, SettingsStore>();
         services.AddSingleton<ITranslationHistoryService, TranslationHistoryService>();
+        services.AddSingleton<IHealthCheckService, HealthCheckService>();
         
         services.AddSingleton<IProviderClient>(sp =>
         {
@@ -87,6 +88,7 @@ public partial class App : Application
         services.AddSingleton<MainViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<HistoryViewModel>();
+        services.AddTransient<TranslationPopupViewModel>();
 
         services.AddSingleton<MainWindow>();
         services.AddTransient<SettingsWindow>();
